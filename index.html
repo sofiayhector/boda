@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+<html lang="es">
+    <head>
+        <title>Sofía &amp; Héctor</title>
+
+        <meta charset="utf-8">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+
+        <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Great+Vibes&family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;700;900&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400;1,700&display=swap" rel="stylesheet">
+
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24..48,200..400,0,0&icon_names=bedtime,checkroom,church,door_open,event,history_edu,location_on,mail,redeem&display=block" rel="stylesheet">
+
+        <link rel="stylesheet" type="text/css" href="css/vendor/lightbox.min.css">
+
+        <link rel="stylesheet" type="text/css" href="css/vendor/owl.carousel.min.css">
+
+        <link rel="stylesheet" type="text/css" href="css/vendor/owl.theme.default.min.css">
+
+        <link rel="stylesheet" type="text/css" href="fonts/fontawesome-6/css/fontawesome.min.css">
+
+        <link rel="stylesheet" type="text/css" href="fonts/fontawesome-6/css/all.min.css">
+
+        <link rel="stylesheet" type="text/css" href="css/vendor/motion.min.css">
+
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+
+        <link rel="stylesheet" type="text/css" href="css/lp-hero.css">
+    </head>
+
+    <body class="lp-page">
+        <div class="loader"></div>
+
+        <div class="main">
+
+            <!-- Header -->
+
+            <section id="header" class="cover lp-hero">
+                <div class="lp">
+                    <button class="lp__open" type="button" aria-label="Abrir el disco" aria-controls="lp-nav" aria-expanded="false"></button>
+
+                    <!-- hint under the closed LP; blinks softly until the record is opened -->
+                    <p class="lp__hint" aria-hidden="true"><span class="lp__hint-click">Haz clic para abrir</span><span class="lp__hint-tap">Toca para abrir</span></p>
+
+                    <div class="lp__sleeve">
+                        <div class="lp__print">
+                            <img class="lp__cover" src="images/lp-cover.jpg" alt="Sofía y Héctor">
+
+                            <!-- Monogram: S & H and the date (component .mono, see lp-hero.css). The names
+                                 are not shown on the sleeve; the h1 stays for screen readers and search. -->
+
+                            <div class="mono lp__mono">
+                                <img class="mono__mark" src="images/monogram-sh.png" alt="" aria-hidden="true">
+
+                                <h1 class="mono__names visually-hidden">Sofía &amp; Héctor</h1>
+
+                                <p class="mono__date">27 . 02 . 2027</p>
+                            </div>
+
+                            <span class="lp__wear" aria-hidden="true"></span>
+                        </div>
+                    </div>
+
+                    <div class="lp__vinyl">
+                        <div class="lp__disc">
+                            <div class="lp__label">
+                                <span class="lp__hole" aria-hidden="true"></span>
+                            </div>
+                        </div>
+
+                        <div class="lp__shine" aria-hidden="true"></div>
+
+                        <!-- section icons, in page order from the top of the ring (225deg) down to 165deg, 20deg apart -->
+                        <nav class="lp__nav" id="lp-nav" aria-label="Menú principal">
+                            <a class="lp__nav-item" href="#events" style="--a: 225deg">
+                                <span class="material-symbols-rounded" aria-hidden="true">event</span>
+                                <span class="lp__nav-label">Itinerario</span>
+                            </a>
+
+                            <a class="lp__nav-item" href="#dresscode" style="--a: 205deg">
+                                <span class="material-symbols-rounded" aria-hidden="true">checkroom</span>
+                                <span class="lp__nav-label">Vestimenta</span>
+                            </a>
+
+                            <a class="lp__nav-item" href="#gifts" style="--a: 185deg">
+                                <span class="material-symbols-rounded" aria-hidden="true">redeem</span>
+                                <span class="lp__nav-label">Regalos</span>
+                            </a>
+
+                            <a class="lp__nav-item" href="#invitation" style="--a: 165deg">
+                                <span class="material-symbols-rounded" aria-hidden="true">mail</span>
+                                <span class="lp__nav-label">Asistencia</span>
+                            </a>
+                        </nav>
+
+                        <svg class="lp__arm" viewBox="0 0 1000 1000" aria-hidden="true">
+                            <g class="lp__arm-swing">
+                                <line x1="900" y1="0" x2="574.8" y2="196.9" stroke="#c9cdd2" stroke-width="13" stroke-linecap="round"></line>
+                                <line x1="898" y1="-3" x2="572.8" y2="193.9" stroke="#f3f5f7" stroke-width="3" stroke-linecap="round"></line>
+                                <circle cx="900" cy="0" r="42" fill="#dfe2e6" stroke="#9aa0a6" stroke-width="4"></circle>
+                                <g transform="translate(574.8 196.9) rotate(58.8)">
+                                    <rect x="-21" y="-8" width="42" height="72" rx="7" fill="#2b2e33"></rect>
+                                    <rect x="-14" y="42" width="28" height="18" rx="3" fill="#c9d9e8"></rect>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page card: all content below the cover -->
+
+            <div class="page-card">
+                <!-- Floral corners (hydrangeas, from the couple's reference): top left at the
+                     start of the card, bottom right at its end; inside the card so its
+                     rounded corners trim them -->
+                <img class="card-floral card-floral--tl" src="images/floral-corner-tl.webp" alt="" aria-hidden="true">
+                <img class="card-floral card-floral--br" src="images/floral-corner-br.webp" alt="" aria-hidden="true">
+
+                <!-- Section About-us -->
+
+                <section id="couple" class="section couple">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 text-center heading">
+                                <h2>¡Nos casamos!</h2>
+
+                                <!-- names like the couple's printed reference: spaced serif capitals,
+                                     a script "y" between two hairlines -->
+                                <p class="couple-names">
+                                    <span class="couple-names__name">Sofía</span>
+                                    <span class="couple-names__and">y</span>
+                                    <span class="couple-names__name">Héctor</span>
+                                </p>
+
+                                <p class="couple-names__invite">y queremos celebrar contigo nuestra boda</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Photo band: RG4029 across the whole card, with torn paper edges top and
+                     bottom; cropped to keep the couple (36% / 58% of the photo) centered -->
+                <div class="photo-band">
+                    <img class="photo-band__img" src="images/photo-band.jpg"
+                         srcset="images/photo-band-sm.jpg 1000w, images/photo-band.jpg 2000w" sizes="100vw"
+                         alt="Sofía y Héctor en el bosque" width="2000" height="1333" loading="lazy" decoding="async">
+                </div>
+
+                <!-- Section Parents (below the photo): "Con la bendición de Dios y de nuestros padres:",
+                     then the bride's parents, the couple's drawing and the groom's parents -->
+
+                <section id="parents" class="section parents">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 text-center heading">
+                                <p>Con la bendición de Dios y de nuestros padres:</p>
+                            </div>
+                        </div>
+
+                        <!-- Parents: the bride's on the left, the couple's line drawing in the center,
+                             the groom's on the right (the same row on phones, smaller) -->
+                        <div class="parents-row">
+                            <div class="parents-side parents-side--bride">
+                                <h3>Padres de la novia</h3>
+
+                                <p class="parents-names">
+                                    Martín Adolfo <br class="parents-names__br">Herrera Salado
+                                    <span class="parents-names__amp">&amp;</span>
+                                    Martha Susana <br class="parents-names__br">Díliz Pérez
+                                </p>
+                            </div>
+
+                            <img class="couple-drawing" src="images/couple-drawing.png" alt="Dibujo de los novios abrazados, ella con velo y él con un ramo" width="518" height="889" loading="lazy" decoding="async">
+
+                            <div class="parents-side parents-side--groom">
+                                <h3>Padres del novio</h3>
+
+                                <p class="parents-names">
+                                    Héctor <br class="parents-names__br">Villarreal Chávez
+                                    <span class="parents-names__amp">&amp;</span>
+                                    María Leticia <br class="parents-names__br">Valencia Flores
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section Countdown -->
+
+                <section id="countdown" class="countdown section text-center">
+                    <div class="container">
+                        <div class="row">
+                            <div class="heading col-12">
+                                <h2>El gran día</h2>
+
+                                <!-- the date like the couple's reference: the weekday on top, the day large in
+                                     the middle, the month and the year between hairlines on each side -->
+                                <div class="date-block" role="text" aria-label="Sábado 27 de febrero de 2027">
+                                    <div class="date-block__month" aria-hidden="true">Sábado</div>
+                                    <div class="date-block__row" aria-hidden="true">
+                                        <div class="date-block__side">Febrero</div>
+                                        <div class="date-block__day">27</div>
+                                        <div class="date-block__side date-block__side--year">2027</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <p class="countdown-faltan">Faltan</p>
+
+                                <div id="timer" class="timer text-center">
+                                    <div class="timer-item_digits">
+                                        <div class="timer-item">
+                                            <div>
+                                                <span class="days digit"></span>
+
+                                                <div class="smalltext">días</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="timer-item">
+                                            <div>
+                                                <span class="hours digit"></span>
+
+                                                <div class="smalltext">horas</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="timer-item">
+                                            <div>
+                                                <span class="minutes digit"></span>
+
+                                                <div class="smalltext">minutos</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="timer-item">
+                                            <div>
+                                                <span class="seconds digit"></span>
+
+                                                <div class="smalltext">segundos</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Second photo band, between the countdown and the itinerary: three of the couple's
+                     photos side by side (left, center, right) with thin paper gaps between them, under
+                     the same torn paper edges as the first band -->
+                <div class="photo-band photo-band--trio">
+                    <div class="photo-trio">
+                        <img src="images/trio-left.jpg" style="--pos: 50% 28%" alt="Sofía y Héctor en el coche, sonriendo" width="900" height="1380" loading="lazy" decoding="async">
+                        <img src="images/trio-center.jpg" style="--pos: 50% 16%" alt="Sofía y Héctor mirándose en una mesa, tomados de la mano" width="680" height="950" loading="lazy" decoding="async">
+                        <img src="images/trio-right.jpg" style="--pos: 50% 26%" alt="Sofía apoyada en el hombro de Héctor, con su anillo de compromiso" width="674" height="878" loading="lazy" decoding="async">
+                    </div>
+                </div>
+
+                <!-- Section Events -->
+
+                <section id="events" class="events-accordion section">
+                    <div class="container-md">
+                        <div class="row">
+                            <div class="col-12 text-center heading">
+                                <h2>Itinerario</h2>
+
+                                <span class="heading-sub">De nuestro día</span>
+                            </div>
+                        </div>
+
+                        <!-- Timeline: a center line with events alternating right / left (styles in lp-hero.css) -->
+                        <ol class="wed-timeline">
+                            <li class="wed-timeline__item wed-timeline__item--right wed-timeline__item--venue">
+                                <span class="wed-timeline__icon material-symbols-rounded" aria-hidden="true">history_edu</span>
+                                <div class="wed-timeline__text">
+                                    <span class="wed-timeline__time">5:30 PM</span>
+                                    <span class="wed-timeline__name">Ceremonia civil</span>
+
+                                    <!-- Venue: place, address and a Google Maps link -->
+                                    <div class="wed-timeline__venue">
+                                        <span class="wed-timeline__place">SAFI Metropolitan<br>Salón Cristal, Piso 7</span>
+
+                                        <span class="wed-timeline__address">Av. Lázaro Cárdenas 2400, Valle Oriente,<br>San Pedro Garza García, N.L.</span>
+
+                                        <a class="btn-sand" href="https://maps.app.goo.gl/Dd2LXDzYj6cPdhCb8" target="_blank" rel="noopener">
+                                            <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                                            <span class="btn-sand__label"><span class="btn-sand__desk">Ver en </span>Google Maps</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="wed-timeline__item wed-timeline__item--left wed-timeline__item--venue">
+                                <span class="wed-timeline__icon material-symbols-rounded" aria-hidden="true">church</span>
+                                <div class="wed-timeline__text">
+                                    <span class="wed-timeline__time">7:30 PM</span>
+                                    <span class="wed-timeline__name">Ceremonia religiosa</span>
+
+                                    <!-- Venue: place, address and a Google Maps link -->
+                                    <div class="wed-timeline__venue">
+                                        <span class="wed-timeline__place">Parroquia de Santa Engracia</span>
+
+                                        <span class="wed-timeline__address">Los Rosales 385, Col. Santa Engracia,<br>San Pedro Garza García, N.L.</span>
+
+                                        <a class="btn-sand" href="https://maps.app.goo.gl/EUqiFNJGK64yped8A" target="_blank" rel="noopener">
+                                            <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                                            <span class="btn-sand__label"><span class="btn-sand__desk">Ver en </span>Google Maps</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="wed-timeline__item wed-timeline__item--right wed-timeline__item--venue">
+                                <span class="wed-timeline__icon material-symbols-rounded" aria-hidden="true">door_open</span>
+                                <div class="wed-timeline__text">
+                                    <span class="wed-timeline__time">8:00 PM</span>
+                                    <span class="wed-timeline__name">Se abre el salón</span>
+
+                                    <!-- Venue: place, address and a Google Maps link -->
+                                    <div class="wed-timeline__venue">
+                                        <span class="wed-timeline__place">SAFI Metropolitan<br>Salón Dubai – Praga, Piso 7</span>
+
+                                        <span class="wed-timeline__address">Av. Lázaro Cárdenas 2400, Valle Oriente,<br>San Pedro Garza García, N.L.</span>
+
+                                        <a class="btn-sand" href="https://maps.app.goo.gl/Dd2LXDzYj6cPdhCb8" target="_blank" rel="noopener">
+                                            <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                                            <span class="btn-sand__label"><span class="btn-sand__desk">Ver en </span>Google Maps</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="wed-timeline__item wed-timeline__item--left">
+                                <!-- Cloche on a serving hand (hand-drawn SVG, same thin line as the other icons) -->
+                                <svg class="wed-timeline__icon wed-timeline__icon--svg" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M21.1 4.2 L27.3 4.2 L28.5 6.4 L26.2 8.7 L22.2 8.7 L19.9 6.4 Z"/>
+                                    <path d="M8.5 23.8 A15.6 14.9 0 0 1 39.9 23.8"/>
+                                    <path d="M7.3 23.8 H40.9 Q42.0 23.8 42.0 24.9 V26.8 Q42.0 27.9 40.9 27.9 H7.3 Q6.2 27.9 6.2 26.8 V24.9 Q6.2 23.8 7.3 23.8 Z"/>
+                                    <path class="is-solid" d="M15.3 30.4 L18.5 27.1 Q19.5 26.2 20.8 26.2 L26.8 26.2 Q28.7 26.2 28.7 27.9 Q28.7 29.6 26.8 29.6 L23.8 29.6 Q22.4 29.6 22.4 30.9 Q22.4 32.2 23.8 32.2 L29.7 32.2 L36.4 28.1 Q37.9 27.5 37.9 28.9 L31.5 35.4 Q30.9 35.9 29.9 35.9 L20.7 35.9 Z"/>
+                                    <path class="is-solid" d="M13.2 29.6 L21.6 38.0 L13.0 43.8 L6.5 37.2 Z"/>
+                                    <path d="M10.6 32.0 L18.9 40.1"/>
+                                </svg>
+                                <div class="wed-timeline__text">
+                                    <span class="wed-timeline__time">9:00 PM</span>
+                                    <span class="wed-timeline__name">Cena</span>
+                                </div>
+                            </li>
+
+                            <li class="wed-timeline__item wed-timeline__item--right">
+                                <!-- Disco ball with stars (hand-drawn SVG, same thin line as the other icons) -->
+                                <svg class="wed-timeline__icon wed-timeline__icon--svg" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M24 1.5 V9"/>
+                                    <circle cx="24" cy="25" r="16"/>
+                                    <ellipse cx="24" cy="25" rx="5.5" ry="16"/>
+                                    <ellipse cx="24" cy="25" rx="11.5" ry="16"/>
+                                    <ellipse cx="24" cy="25" rx="16" ry="4.5"/>
+                                    <path d="M10.5 16.5 Q24 12.5 37.5 16.5"/>
+                                    <path d="M10.5 33.5 Q24 37.5 37.5 33.5"/>
+                                    <path d="M6.5 5.7 L7.2 7.5 L9.2 7.6 L7.7 8.9 L8.1 10.8 L6.5 9.8 L4.9 10.8 L5.3 8.9 L3.8 7.6 L5.8 7.5 Z"/>
+                                    <path d="M41.0 5.3 L41.8 7.3 L44.0 7.5 L42.4 8.9 L42.9 11.1 L41.0 9.9 L39.1 11.1 L39.6 8.9 L38.0 7.5 L40.2 7.3 Z"/>
+                                    <path d="M5.5 37.4 L6.2 39.1 L8.0 39.2 L6.6 40.4 L7.0 42.1 L5.5 41.2 L4.0 42.1 L4.4 40.4 L3.0 39.2 L4.8 39.1 Z"/>
+                                    <path d="M42.0 38.5 L42.8 40.4 L44.9 40.6 L43.3 41.9 L43.8 43.9 L42.0 42.9 L40.2 43.9 L40.7 41.9 L39.1 40.6 L41.2 40.4 Z"/>
+                                    <path d="M13 4.5 L14 7"/>
+                                    <path d="M34 7 L35 4.5"/>
+                                    <path d="M1.5 24 L4 24.5"/>
+                                    <path d="M44 25.5 L46.5 26"/>
+                                </svg>
+                                <div class="wed-timeline__text">
+                                    <span class="wed-timeline__time">10:00 PM</span>
+                                    <span class="wed-timeline__name">Abre la pista</span>
+                                </div>
+                            </li>
+
+                            <li class="wed-timeline__item wed-timeline__item--left">
+                                <span class="wed-timeline__icon material-symbols-rounded" aria-hidden="true">bedtime</span>
+                                <div class="wed-timeline__text">
+                                    <span class="wed-timeline__time">2:00 AM</span>
+                                    <span class="wed-timeline__name">Fin de la fiesta</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- Section Dress code -->
+
+                <section id="dresscode" class="section dress">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 text-center heading">
+                                <span>Código de vestimenta</span>
+
+                                <h2>Vestimenta formal</h2>
+                            </div>
+                        </div>
+
+                        <!-- Compact summary, like the couple's reference: the suit with "Hombres"
+                             on the left, "Mujeres" with the long dress on the right (mirrored),
+                             then one shared line with the colors to avoid -->
+                        <div class="dress-pair">
+                            <div class="dress-side dress-side--men">
+                                <!-- full suit: jacket, shirt, tie, trousers -->
+                                <svg class="dress-side__icon" viewBox="8 6 42 91" role="img" aria-label="Traje completo">
+                                    <!-- suit jacket: shoulders, collar, sleeves and cuffs, sides, hem -->
+                                    <path d="M22 9 Q29 7 36 9"/>
+                                    <path d="M22 9 L13 14 L10 48 H15 L16 24 M36 9 L45 14 L48 48 H43 L42 24"/>
+                                    <path d="M16 24 L17 52 L28.6 53.6 M42 24 L41 52 L29.4 53.6"/>
+                                    <!-- lapels meeting at the button, and the front opening below it -->
+                                    <path d="M22 9 L20.5 17 L23.5 19 L29 38 L34.5 19 L37.5 17 L36 9"/>
+                                    <path d="M29 38 Q28.6 46 28.6 53.6 M29 38 Q29.4 46 29.4 53.6"/>
+                                    <!-- shirt collar and tie -->
+                                    <path d="M24 9.5 L27.6 12 M34 9.5 L30.4 12"/>
+                                    <path d="M27.6 11 H30.4 L30 13.6 H28 Z M28 13.6 L27.1 29.5 L29 32 L30.9 29.5 L30 13.6"/>
+                                    <!-- breast pocket, hip pockets, buttons -->
+                                    <path d="M34.6 27.6 H39 M19.6 44 H25 M33 44 H38.4"/>
+                                    <circle cx="30.4" cy="41" r="0.6"/>
+                                    <circle cx="30.4" cy="46.4" r="0.6"/>
+                                    <!-- trousers with a center crease line on each leg -->
+                                    <path d="M19 53.4 L20 95 H28 L29 63 L30 95 H38 L39 53.4"/>
+                                    <path d="M24 60 V93 M34 60 V93"/>
+                                </svg>
+
+                                <div class="dress-side__text">
+                                    <h3 class="dress-col__title">Hombres</h3>
+                                    <p class="dress-col__main">Traje oscuro<br>con corbata</p>
+                                </div>
+                            </div>
+
+                            <div class="dress-side dress-side--women">
+                                <div class="dress-side__text">
+                                    <h3 class="dress-col__title">Mujeres</h3>
+                                    <p class="dress-col__main">Vestido largo</p>
+                                </div>
+
+                                <!-- long dress: straps, sweetheart neckline, fitted bodice, flowing skirt -->
+                                <svg class="dress-side__icon dress-side__icon--dress" viewBox="58 30 32 69" role="img" aria-label="Vestido largo">
+                                    <path d="M69.4 32 L70.2 38.2 M78.6 32 L77.8 38.2"/>
+                                    <path d="M68.5 38.6 Q71.5 37 74 39.6 Q76.5 37 79.5 38.6"/>
+                                    <path d="M68.5 38.6 Q67.9 44 69.6 49 Q68 62 66 74 Q63.5 86 61 95 Q74 97.6 87 95 Q84.5 86 82 74 Q80 62 78.4 49 Q80.1 44 79.5 38.6"/>
+                                    <path d="M69.6 49 Q74 50.4 78.4 49"/>
+                                    <path d="M72 53 Q70.6 74 68.4 96.2 M76.4 53 Q78.2 74 80.6 96.2"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- colors to avoid, for both: crossed-out chips -->
+                        <div class="dress-avoid-block">
+                            <p class="dress-col__avoid">Les pedimos a hombres y mujeres evitar los siguientes colores:</p>
+
+                            <ul class="dress-avoid" aria-label="Colores a evitar: blanco, marfil y crema">
+                                <li class="dress-avoid__item">
+                                    <span class="dress-avoid__dot" style="--dress-c: #ffffff"></span>
+                                    <span class="dress-avoid__name">Blanco</span>
+                                </li>
+                                <li class="dress-avoid__item">
+                                    <span class="dress-avoid__dot" style="--dress-c: #f9f5e6"></span>
+                                    <span class="dress-avoid__name">Marfil</span>
+                                </li>
+                                <li class="dress-avoid__item">
+                                    <span class="dress-avoid__dot" style="--dress-c: #eedfc0"></span>
+                                    <span class="dress-avoid__name">Crema</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Children: the night is adults only (crossed-out teddy bear left of the note) -->
+                        <div class="dress-kids">
+                            <svg class="dress-kids__icon" viewBox="0 0 48 48" aria-hidden="true">
+                                <!-- teddy bear, scaled to fit inside the circle -->
+                                <g transform="translate(24 24) scale(0.66) translate(-24 -25.5)">
+                                    <circle cx="17.4" cy="10.8" r="3"/>
+                                    <circle cx="30.6" cy="10.8" r="3"/>
+                                    <ellipse cx="15.6" cy="30" rx="2.8" ry="4.2" transform="rotate(25 15.6 30)"/>
+                                    <ellipse cx="32.4" cy="30" rx="2.8" ry="4.2" transform="rotate(-25 32.4 30)"/>
+                                    <ellipse cx="18.8" cy="40.6" rx="3.6" ry="3"/>
+                                    <ellipse cx="29.2" cy="40.6" rx="3.6" ry="3"/>
+                                    <ellipse class="is-solid" cx="24" cy="33" rx="8" ry="8.6"/>
+                                    <ellipse cx="24" cy="34.4" rx="4" ry="4.4"/>
+                                    <circle class="is-solid" cx="24" cy="17" r="7.6"/>
+                                    <ellipse cx="24" cy="20" rx="3" ry="2.3"/>
+                                    <path d="M23.2 19.2 H24.8 L24 20.1 Z"/>
+                                    <circle cx="21.2" cy="15.8" r="0.45"/>
+                                    <circle cx="26.8" cy="15.8" r="0.45"/>
+                                </g>
+                                <!-- "not allowed" circle and slash, drawn over the bear -->
+                                <circle cx="24" cy="24" r="21.5"/>
+                                <path d="M8.8 8.8 L39.2 39.2"/>
+                            </svg>
+
+                            <p class="dress-kids__text">Queremos mucho a sus pequeños; sin embargo, esta noche está reservada <strong class="dress-kids__adults">solo para adultos</strong>. Agradecemos tu comprensión.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section Gift registry -->
+
+                <section id="gifts" class="section gift">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 text-center heading">
+                                <span>Mesa de regalos</span>
+
+                                <h2>Regalos</h2>
+
+                                <p class="gift-intro">Tu presencia es el regalo más bonito que podemos recibir. Si además deseas tener un detalle con nosotros, aquí te compartimos algunas opciones.</p>
+                            </div>
+                        </div>
+
+                        <!-- Two option cards: Amazon and a bank transfer (styles in lp-hero.css) -->
+                        <div class="row g-4 justify-content-center gift-list">
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <article class="gift-card">
+                                    <!-- Gift box: line icon (lid, box, ribbon and bow) -->
+                                    <svg class="gift-card__icon" viewBox="0 0 48 48" aria-hidden="true">
+                                        <rect x="8" y="17" width="32" height="7" rx="1"/>
+                                        <path d="M11 24 V41 H37 V24"/>
+                                        <path d="M24 17 V41"/>
+                                        <path d="M24 17 C20 10 13 11 15.5 15 C17 18 22 17.5 24 17 Z"/>
+                                        <path d="M24 17 C28 10 35 11 32.5 15 C31 18 26 17.5 24 17 Z"/>
+                                    </svg>
+
+                                    <span class="gift-card__store">Amazon</span>
+                                    <h3 class="gift-card__title">Mesa de regalos en Amazon</h3>
+
+                                    <div class="gift-card__action">
+                                        <a class="gift-btn" href="https://www.amazon.com.mx/wedding/guest-view/3AF3FGAZ7SXLT" target="_blank" rel="noopener">
+                                            <span class="gift-btn__label">Ver mesa</span>
+                                            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <article class="gift-card">
+                                    <!-- Bank: line icon (pediment, columns and steps) -->
+                                    <svg class="gift-card__icon" viewBox="0 0 48 48" aria-hidden="true">
+                                        <path d="M7 17 L24 7 L41 17 Z"/>
+                                        <circle cx="24" cy="13.5" r="1.5"/>
+                                        <path d="M9 20.5 H39"/>
+                                        <path d="M13 23 V35 M20 23 V35 M28 23 V35 M35 23 V35"/>
+                                        <path d="M9 37.5 H39 M7 41 H41"/>
+                                    </svg>
+
+                                    <span class="gift-card__store">Transferencia</span>
+                                    <h3 class="gift-card__title">Transferencia bancaria</h3>
+
+                                    <!-- TODO: real bank, account holder and 18-digit CLABE -->
+                                    <dl class="gift-card__details">
+                                        <div class="gift-card__row">
+                                            <dt>Banco</dt>
+                                            <dd>—</dd>
+                                        </div>
+                                        <div class="gift-card__row">
+                                            <dt>Titular</dt>
+                                            <dd>Sofía —</dd>
+                                        </div>
+                                        <div class="gift-card__row">
+                                            <dt>CLABE</dt>
+                                            <dd class="gift-card__clabe" id="gift-clabe">000 000 0000 0000 0000</dd>
+                                        </div>
+                                    </dl>
+
+                                    <div class="gift-card__action">
+                                        <!-- copies the digits of #gift-clabe (copyClabe() in main.js) -->
+                                        <button class="gift-btn gift-copy" type="button" data-copy-target="#gift-clabe">
+                                            <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                                            <span class="gift-btn__label">Copiar CLABE</span>
+                                        </button>
+                                        <span class="visually-hidden" aria-live="polite" data-copy-status></span>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section RSVP -->
+
+                <section id="invitation" class="section invitation">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 text-center heading">
+                                <h2>Confirma tu asistencia</h2>
+
+                                <p>Tu compañía hará este día aún más especial. Por favor, confírmanos si podrás acompañarnos.</p>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-md-8 col-lg-6">
+                                <div class="form-wrapper">
+                                    <!-- RSVP by WhatsApp: set the number (with country code, digits only) and the
+                                         message in data-phone / data-message; main.js builds the wa.me link -->
+                                    <div class="rsvp-whatsapp text-center">
+                                        <h3 class="invitation_heading">¿Nos acompañarás en nuestra boda?</h3>
+
+                                        <p class="mb-4">Avísanos por WhatsApp, solo toma un segundo.</p>
+
+                                        <a class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2 rsvp-whatsapp__button" href="https://wa.me/" target="_blank" rel="noopener"
+                                           data-phone="52XXXXXXXXXX"
+                                           data-message="¡Hola! Confirmo mi asistencia a la boda de Sofía &amp; Héctor el 27 de febrero de 2027.">
+                                            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                                            Confirmar asistencia
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Three polaroids of the couple, tilted and slightly overlapping, with no caption -->
+                        <div class="polaroid-row">
+                            <figure class="polaroid polaroid--1">
+                                <div class="polaroid__frame">
+                                    <img class="polaroid__photo" src="images/polaroid-photo.jpg" alt="Sofía y Héctor" width="900" height="900" loading="lazy" decoding="async">
+                                </div>
+                            </figure>
+
+                            <figure class="polaroid polaroid--2">
+                                <div class="polaroid__frame">
+                                    <img class="polaroid__photo" src="images/polaroid-2.jpg" alt="Las manos de Sofía y Héctor, con el anillo de compromiso" width="900" height="900" loading="lazy" decoding="async">
+                                </div>
+                            </figure>
+
+                            <figure class="polaroid polaroid--3">
+                                <div class="polaroid__frame">
+                                    <img class="polaroid__photo" src="images/polaroid-3.jpg" alt="Sofía y Héctor abrazados en el campo" width="900" height="900" loading="lazy" decoding="async">
+                                </div>
+                            </figure>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+        <script src="js/libs/bootstrap.bundle.min.js"></script>
+
+        <script src="js/libs/parallax.min.js"></script>
+
+        <script src="js/libs/jquery.countTo.js"></script>
+
+        <script src="js/libs/imagesloaded.pkgd.min.js"></script>
+
+        <script src="js/libs/isotope.pkgd.min.js"></script>
+
+        <script src="js/libs/lightbox.min.js"></script>
+
+        <script src="js/libs/owl.carousel.min.js"></script>
+
+        <script src="js/libs/jquery.waypoints.min.js"></script>
+
+        <script src="js/main.js"></script>
+    </body>
+</html>
