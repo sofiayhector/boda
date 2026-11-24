@@ -221,6 +221,66 @@
 
     // Gift registry: "Copiar CLABE" copies the digits of the element named in
     // data-copy-target and shows "¡Copiada!" on the button for 2s
+    /* Scroll reveal (index only): the page card's headings, cards, timeline
+     * items and polaroids fade in while rising from a little below, once,
+     * as they enter the screen. Elements that enter together come in one
+     * after another. The effect uses the CSS `translate` property, so it
+     * adds to tilts set with `transform` (the polaroids). It is skipped with
+     * prefers-reduced-motion or without IntersectionObserver. */
+    var scrollReveal = function () {
+        if (!document.body.classList.contains('lp-page')) return;
+        if (!('IntersectionObserver' in window)) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        var selector = [
+            '.page-card .heading > *',
+            '.parents-side',
+            '.couple-drawing',
+            '.countdown-faltan',
+            '#timer',
+            '.wed-timeline__item',
+            '.hotel-card',
+            '.hotel-booking',
+            '.dress-side',
+            '.dress-avoid-block',
+            '.dress-kids',
+            '.gift-card',
+            '.form-wrapper',
+            '.polaroid'
+        ].join(',');
+
+        var items = Array.prototype.slice.call(document.querySelectorAll(selector));
+        if (!items.length) return;
+
+        var done = function (e) {
+            if (e.target !== e.currentTarget) return;
+            var el = e.currentTarget;
+            el.classList.remove('reveal', 'is-revealed');
+            el.style.animationDelay = '';
+            el.removeEventListener('animationend', done);
+        };
+
+        var io = new IntersectionObserver(function (entries) {
+            var shown = entries
+                .filter(function (en) { return en.isIntersecting; })
+                .map(function (en) { return en.target; })
+                .sort(function (a, b) {
+                    return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+                });
+            shown.forEach(function (el, i) {
+                io.unobserve(el);
+                el.style.animationDelay = Math.min(i * 0.12, 0.6) + 's';
+                el.addEventListener('animationend', done);
+                el.classList.add('is-revealed');
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+
+        items.forEach(function (el) {
+            el.classList.add('reveal');
+            io.observe(el);
+        });
+    };
+
     var copyClabe = function () {
         var copyText = function (text) {
             if (navigator.clipboard && window.isSecureContext) {
@@ -521,5 +581,6 @@
         isotope();
         whatsappRsvp();
         copyClabe();
+        scrollReveal();
     });
 })();

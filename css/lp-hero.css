@@ -2599,3 +2599,29 @@ button.btn-sand {
         font-size: 20px;
     }
 }
+
+/* ------------------------------------------------------------------
+ * Scroll reveal: scrollReveal() in main.js adds .reveal to the page
+ * card's items and .is-revealed as each one enters the screen; it
+ * fades in rising 28px. Uses `translate`, not `transform`, so tilted
+ * polaroids keep their tilt. Both classes are removed when it ends.
+ * ------------------------------------------------------------------ */
+.reveal {
+    opacity: 0;
+}
+
+.reveal.is-revealed {
+    animation: reveal-up 0.9s cubic-bezier(0.22, 0.7, 0.25, 1) both;
+}
+
+@keyframes reveal-up {
+    from {
+        opacity: 0;
+        translate: 0 28px;
+    }
+
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
