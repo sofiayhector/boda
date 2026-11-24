@@ -791,6 +791,27 @@ a.lp__nav-item:focus-visible .lp__nav-label {
     letter-spacing: 0.26em;
 }
 
+/* a short note under an event's name ("Con previa invitación"): the same font
+   as the venue address (Open Sans, upright), in sand */
+.wed-timeline__note {
+    display: block;
+    margin-top: 4px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #8a7b5f;
+}
+
+@media (max-width: 575px) {
+    .wed-timeline__note {
+        font-size: 11px;
+    }
+}
+
 /* Phones: shorter ticks, icon stacked over the text */
 @media (max-width: 575px) {
     .wed-timeline {
@@ -2198,6 +2219,7 @@ button.btn-sand {
  * ------------------------------------------------------------------ */
 
 #countdown,
+#hotels,
 #dresscode,
 #gifts,
 #invitation,
@@ -2209,6 +2231,7 @@ button.btn-sand {
 
 /* the line, with a diamond at each end */
 #countdown::before,
+#hotels::before,
 #dresscode::before,
 #gifts::before,
 #invitation::before,
@@ -2235,6 +2258,7 @@ button.btn-sand {
    above it, above the section it opens) */
 @media (max-width: 575px) {
     #countdown,
+    #hotels,
     #dresscode,
     #gifts,
     #invitation {
@@ -2244,6 +2268,7 @@ button.btn-sand {
 
     #parents,
     #events,
+    #hotels,
     #dresscode,
     #gifts {
         padding-bottom: calc(var(--section-pad) + 15px);
@@ -2396,4 +2421,181 @@ button.btn-sand {
     box-shadow: 0 5px 14px rgba(120, 95, 60, 0.18);
     color: #4d4433;
     transform: translateY(-1px);
+}
+
+/* ------------------------------------------------------------------
+ * Hotels (#hotels, between the itinerary and the dress code): the SAFI
+ * hotels' wedding agreement, from the rate letter in source-images/hotels/
+ * (rates left out on purpose). Two cards like the gift cards, with the
+ * hotel's photo on top, then the agreement code set large in the
+ * names' serif, the reservations phones and the deadline.
+ * ------------------------------------------------------------------ */
+#hotels .hotels-intro {
+    max-width: 560px;
+    margin: 14px auto 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    font-style: italic;
+    line-height: 1.45;
+    color: #333;
+    text-wrap: balance;
+}
+
+.hotel-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(214, 207, 189, 0.7);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 6px 18px rgba(62, 111, 163, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.hotel-card__photo {
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: 220px;
+    object-fit: cover;
+}
+
+.hotel-card__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 22px 22px 24px;
+}
+
+.hotel-card__tag {
+    margin-bottom: 4px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #a39579;
+}
+
+.hotel-card__name {
+    margin: 0 0 8px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #333;
+}
+
+.hotel-card__address {
+    margin: 0 0 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #777;
+}
+
+.hotel-card .gift-btn {
+    margin-top: auto;
+}
+
+.hotel-booking {
+    max-width: 520px;
+    margin: 36px auto 0;
+    text-align: center;
+}
+
+.hotel-booking p {
+    margin: 0;
+}
+
+.hotel-booking__label {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #a39579;
+}
+
+/* the code, large in the names' serif capitals */
+.hotel-booking__code {
+    padding-left: 0.18em; /* letter-spacing pad keeps it centered */
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: 0.18em;
+    font-variant-numeric: lining-nums;
+    color: #555;
+}
+
+.hotel-booking__spell {
+    margin-bottom: 16px !important;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: #8a7b5f;
+}
+
+.hotel-booking__how {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-style: italic;
+    color: #333;
+}
+
+.hotel-booking__phones {
+    margin-top: 6px !important;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-variant-numeric: lining-nums;
+    letter-spacing: 0.06em;
+    color: #555;
+}
+
+.hotel-booking__phones a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(163, 149, 121, 0.5);
+}
+
+.hotel-booking__phones span {
+    margin: 0 10px;
+    color: #a39579;
+}
+
+.hotel-booking__note {
+    margin-top: 12px !important;
+    font-size: 12px;
+    color: #777;
+}
+
+@media (max-width: 575px) {
+    #hotels .hotels-intro {
+        font-size: 19px;
+    }
+
+    .hotel-card__photo {
+        height: 190px;
+    }
+
+    .hotel-card__name {
+        font-size: 23px;
+    }
+
+    .hotel-booking {
+        margin-top: 28px;
+    }
+
+    .hotel-booking__code {
+        font-size: 44px;
+    }
+
+    .hotel-booking__how {
+        font-size: 17px;
+    }
+
+    .hotel-booking__phones {
+        font-size: 20px;
+    }
 }
