@@ -150,12 +150,16 @@
                     </div>
                 </section>
 
-                <!-- Photo band: RG4029 across the whole card, with torn paper edges top and
-                     bottom; cropped to keep the couple (36% / 58% of the photo) centered -->
-                <div class="photo-band">
-                    <img class="photo-band__img" src="images/photo-band.jpg"
-                         srcset="images/photo-band-sm.jpg 1000w, images/photo-band.jpg 2000w" sizes="100vw"
-                         alt="Sofía y Héctor en el bosque" width="2000" height="1333" loading="lazy" decoding="async">
+                <!-- Photo band: the couple's main photo across the whole card, with torn paper edges
+                     top and bottom; cropped to keep the couple centered (--fx / --fy in lp-hero.css) -->
+                <div class="photo-band photo-band--main">
+                    <picture>
+                        <!-- phones: a crop that starts just below the couple's feet -->
+                        <source media="(max-width: 767px)" srcset="images/photo-band-portrait.jpg">
+                        <img class="photo-band__img" src="images/photo-band.jpg"
+                             srcset="images/photo-band-sm.jpg 1000w, images/photo-band.jpg 2000w" sizes="100vw"
+                             alt="Sofía y Héctor besándose en el bosque" width="2000" height="1333" loading="lazy" decoding="async">
+                    </picture>
                 </div>
 
                 <!-- Section Parents (below the photo): "Con la bendición de Dios y de nuestros padres:",
@@ -265,9 +269,9 @@
                      the same torn paper edges as the first band -->
                 <div class="photo-band photo-band--trio">
                     <div class="photo-trio">
-                        <img src="images/trio-left.jpg" style="--pos: 50% 28%" alt="Sofía y Héctor en el coche, sonriendo" width="900" height="1380" loading="lazy" decoding="async">
-                        <img src="images/trio-center.jpg" style="--pos: 50% 16%" alt="Sofía y Héctor mirándose en una mesa, tomados de la mano" width="680" height="950" loading="lazy" decoding="async">
-                        <img src="images/trio-right.jpg" style="--pos: 50% 26%" alt="Sofía apoyada en el hombro de Héctor, con su anillo de compromiso" width="674" height="878" loading="lazy" decoding="async">
+                        <img src="images/trio-left.jpg" style="--pos: 50% 50%" alt="Sofía y Héctor mirándose en una mesa, tomados de la mano" width="633" height="950" loading="lazy" decoding="async">
+                        <img src="images/trio-center.jpg" style="--pos: 50% 50%" alt="Sofía y Héctor abrazados de noche" width="900" height="1350" loading="lazy" decoding="async">
+                        <img src="images/trio-right.jpg" style="--pos: 50% 50%" alt="Sofía y Héctor sonriendo en el coche" width="900" height="1350" loading="lazy" decoding="async">
                     </div>
                 </div>
 
@@ -627,19 +631,19 @@
                         <div class="polaroid-row">
                             <figure class="polaroid polaroid--1">
                                 <div class="polaroid__frame">
-                                    <img class="polaroid__photo" src="images/polaroid-photo.jpg" alt="Sofía y Héctor" width="900" height="900" loading="lazy" decoding="async">
+                                    <img class="polaroid__photo" src="images/polaroid-photo.jpg" alt="Sofía y Héctor riendo, frente con frente" width="900" height="900" loading="lazy" decoding="async">
                                 </div>
                             </figure>
 
                             <figure class="polaroid polaroid--2">
                                 <div class="polaroid__frame">
-                                    <img class="polaroid__photo" src="images/polaroid-2.jpg" alt="Las manos de Sofía y Héctor, con el anillo de compromiso" width="900" height="900" loading="lazy" decoding="async">
+                                    <img class="polaroid__photo" src="images/polaroid-2.jpg" alt="Sofía y Héctor en el coche, a punto de besarse" width="900" height="900" loading="lazy" decoding="async">
                                 </div>
                             </figure>
 
                             <figure class="polaroid polaroid--3">
                                 <div class="polaroid__frame">
-                                    <img class="polaroid__photo" src="images/polaroid-3.jpg" alt="Sofía y Héctor abrazados en el campo" width="900" height="900" loading="lazy" decoding="async">
+                                    <img class="polaroid__photo" src="images/polaroid-3.jpg" alt="Sofía y Héctor abrazados en el balcón" width="900" height="900" loading="lazy" decoding="async">
                                 </div>
                             </figure>
                         </div>

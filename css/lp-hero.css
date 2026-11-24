@@ -2062,9 +2062,9 @@ button.btn-sand {
     /* per photo: the point to keep in the middle (fraction across / down the
        photo) and the minimum zoom that lets it reach the middle without the
        photo's edge showing (50cqw / --fx when --fx < 0.5) */
-    --fx: 0.36;
-    --fy: 0.58;
-    --zoom: 139cqw;
+    --fx: 0.55;
+    --fy: 0.37;
+    --zoom: 112cqw;
     position: relative;
     height: var(--bh);
     overflow: hidden;
@@ -2119,6 +2119,22 @@ button.btn-sand {
     -webkit-mask-image: linear-gradient(#000, #000), url(../images/torn-edge-bottom.png);
     mask-image: linear-gradient(#000, #000), url(../images/torn-edge-bottom.png);
     transform: scaleY(-1);
+}
+
+/* the first band (the main photo) is taller than the default, so more of the
+   photo shows above and below the couple */
+.photo-band--main {
+    --bh: clamp(340px, 52vw, 720px);
+    /* the crop ends at the couple's knees; this keeps that bottom in view */
+    --fy: 0.65;
+}
+
+/* phones load photo-band-portrait.jpg (a crop from just below the couple's
+   feet up); the band shows its whole height */
+@media (max-width: 767px) {
+    .photo-band--main {
+        --fy: 0.5;
+    }
 }
 
 /* second band, after the countdown: three photos side by side (images/trio-*.jpg,
