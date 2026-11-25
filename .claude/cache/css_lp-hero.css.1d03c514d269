@@ -1,0 +1,2720 @@
+/*
+ * Home page cover: an LP sleeve (title, 2x2 photo grid on a torn kraft-paper strip,
+ * place and date) with a vinyl record. Flow, driven by lpHero() in main.js:
+ *   html.lp-locked       page scroll is blocked until the record is opened
+ *   .lp.is-ready         the record peeks out of the sleeve and hops to the right
+ *                        (no hint text; the whole LP is the button)
+ *   .lp.is-open          (click/tap) the sleeve slides off to the left and the record off to
+ *                        the right, both along X, until they leave the screen
+ *   .lp__vinyl.is-docked the record comes back position: fixed in the bottom right corner,
+ *                        tucked into it (center slightly inside the screen), spinning, label
+ *                        without text, with the tonearm needle on it and the Material icon menu
+ *                        along its visible upper-left edge; it replaces the pill nav
+ *   .lp-hero.is-collapsed the cover shrinks to 0 so the .page-card (all other content) slides up;
+ *                        the blurred photo stays behind it as a fixed backdrop
+ */
+
+html.lp-locked,
+html.lp-locked body {
+    overflow: hidden;
+    overscroll-behavior: none;
+    /* no pinch zoom / double-tap zoom / panning until the record is opened (taps still work) */
+    touch-action: none;
+}
+
+/* nothing exists below the cover until the record is opened, so even a zoomed-out phone
+   can't peek at the page; the card appears when the cover starts collapsing */
+.lp-hero:not(.is-collapsed) ~ .page-card {
+    display: none;
+}
+
+/* shared LP variables live on the page, not the cover: when the record docks, main.js
+   moves it out of the cover (see .lp__vinyl.is-docked), and it still needs them */
+.lp-page {
+    --lp-bg: #eee6d8; /* light beige, like invitation card stock */
+    --lp-paper: #f3ebe8;
+    --lp-kraft: #c3d9ea; /* torn strip and label half: soft sky blue */
+    --lp-ink: #1f1c1a;
+    /* fine grain used on the paper and kraft textures */
+    --lp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    /* docked record, tucked into the bottom right corner: its center sits 0.18 x size in from
+       the right edge and 0.225 x size up from the bottom, so it spills past both edges */
+    --dock: clamp(210px, 24vw, 380px);
+    --dock-right: calc(var(--dock) * -0.32);
+    --dock-bottom: calc(var(--dock) * -0.275);
+}
+
+.lp-hero {
+    /* the visible height on phones (100vh there includes the area behind the address bar,
+       which pushed the LP down and left a big gap on top) */
+    height: 100vh;
+    height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--lp-bg);
+    overflow: hidden;
+    transition: height 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* opening without animation (reduced motion, or arriving with a #section link) */
+.lp-hero.is-instant,
+.lp-hero.is-instant *,
+.lp-hero.is-instant ~ .page-card {
+    transition: none !important;
+}
+
+/* after opening: the cover collapses and the photo becomes a fixed backdrop for the page */
+.lp-hero.is-collapsed {
+    height: 0;
+}
+
+.lp-hero.is-collapsed::before,
+.lp-hero.is-collapsed::after {
+    position: fixed;
+}
+
+/* Material card holding all the content below the cover. Its background is
+   invitation paper: a seamless 512px tile of warm off-white stock with a fine
+   grain (images/paper-card.jpg, made by source-images/make-paper-card.py from
+   the couple's reference). --paper is its average color, used by solid
+   shapes that must cover what is behind them (icon fills, timeline nodes). */
+.page-card {
+    --card-gap: clamp(8px, 2.5vw, 32px);
+    --paper: #fafafa;
+    --paper-img: url(../images/paper-card.jpg);
+    position: relative;
+    z-index: 1;
+    margin: 0 var(--card-gap) var(--card-gap);
+    overflow: hidden;
+    border-radius: 28px;
+    background: var(--paper) var(--paper-img) 0 0 / 512px 512px repeat;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.3),
+        0 4px 8px 3px rgba(0, 0, 0, 0.15);
+    transition: margin-top 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lp-hero.is-collapsed ~ .page-card {
+    margin-top: var(--card-gap);
+}
+
+/* backdrop: light beige paper, like an invitation card, with the same fine grain as the sleeve */
+.lp-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--lp-grain), var(--lp-bg);
+}
+
+/* very soft warm vignette at the edges, like light falling on paper */
+.lp-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%, rgba(120, 95, 60, 0.1));
+}
+
+.lp {
+    /* above the page card, so the docked record always stays in front (below the page loader) */
+    z-index: 1000;
+    /* sleeve size; the closed piece (sleeve + peeking record) is 1.3 sleeves wide.
+       No px cap, so it fills ~75% of the screen height on 1080p, 1440p and 4K alike. */
+    --s: min(76vh, 62vw);
+    --vinyl: calc(var(--s) * 0.96);
+    --peek: calc(var(--s) * 0.24);
+    --hop: calc(var(--s) * 0.05);
+    position: relative;
+    width: calc(var(--s) * 1.3);
+    height: var(--s);
+}
+
+/* the whole closed LP is one big button */
+.lp__open {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.lp__open:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 6px;
+}
+
+.lp.is-open .lp__open {
+    display: none;
+}
+
+/* "Haz clic para abrir" hint: plain small text centered under the closed LP (no pill). It appears
+   with .is-ready, stays still, and leaves as soon as the record is opened.
+   Touch screens read "Toca para abrir". */
+.lp__hint {
+    position: absolute;
+    top: calc(100% + clamp(14px, 3.2vh, 34px));
+    left: 50%;
+    z-index: 2;
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    font-size: max(11px, calc(var(--s) * 0.022));
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #8a7b5f;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-50%);
+    transition: opacity 0.4s ease;
+}
+
+.lp__hint-tap {
+    display: none;
+}
+
+@media (hover: none) {
+    .lp__hint-click {
+        display: none;
+    }
+
+    .lp__hint-tap {
+        display: inline;
+    }
+}
+
+.lp.is-ready:not(.is-open) .lp__hint {
+    opacity: 0.55;
+}
+
+.lp.is-open .lp__hint {
+    opacity: 0;
+}
+
+/* Sleeve (album cover): one square photo, aged like an old, well-loved record sleeve */
+
+.lp__sleeve {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: var(--s);
+    height: var(--s);
+    /* box-shadow, not filter: drop-shadow — any CSS filter here made iPhones render the
+       whole sleeve (photo, logo, text) as a low-resolution bitmap */
+    border-radius: 1.2%;
+    box-shadow:
+        0 2px 2px rgba(0, 0, 0, 0.14),
+        0 20px 22px rgba(0, 0, 0, 0.26);
+    transition: transform 1s cubic-bezier(0.6, 0, 0.3, 1);
+}
+
+/* the printed sleeve, with slightly rounded, worn corners */
+.lp__print {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 1.2%;
+    background: #1d1a17;
+}
+
+/* the photo: soft and faded, like printed long ago */
+.lp__cover {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* the blur and faded tone are baked into the image (sharp source in
+       source-images/lp-cover-sharp.jpg): a CSS blur filter looked low-res on iPhones */
+}
+
+/* wear: thin rubbed edges (the top a bit more), softly worn corners, a little dust and a
+   fine paper texture. images/lp-wear.jpg is white marks on black (generated); screen
+   blending drops the black and keeps the marks. */
+.lp__wear {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url('../images/lp-wear.jpg') center / 100% 100% no-repeat;
+    mix-blend-mode: screen;
+}
+
+/* darker, aged edges */
+.lp__print::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 40px rgba(30, 18, 8, 0.25);
+}
+
+/* Monogram component: the S & H monogram, the names and the date, all in white on a
+   transparent background. Everything is sized in em, so the
+   whole piece scales with the font-size of .mono. */
+.mono {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff !important;
+    background: transparent !important;
+    line-height: 1;
+    text-align: center;
+    text-shadow: 0 1px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* the mark is an image: images/monogram-sh.png, the couple's S & H monogram in white on
+   a transparent background (1000x989) */
+.mono__mark {
+    display: block;
+    width: 9em;
+    height: auto;
+}
+
+.mono__names {
+    margin: 0.6em 0 0;
+    color: #fff !important;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.35em;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+}
+
+.mono__date {
+    margin: 0.55em 0 0;
+    /* letter-spacing adds space after the last character; pad the left to stay centered */
+    padding-left: 0.42em;
+    color: #fff !important;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 0.85em;
+    font-weight: 400;
+    letter-spacing: 0.42em;
+}
+
+/* the monogram on the LP sleeve: the logo in the middle of the cover, the names and the
+   date together near the bottom. It sits inside .lp__print, under the wear layer, so the
+   grain, dust and rubbed edges pass over it as if it were printed on the sleeve. */
+.lp__mono {
+    position: absolute;
+    inset: 0;
+    justify-content: flex-end;
+    padding-bottom: 9%;
+    font-size: calc(var(--s) * 0.044);
+    pointer-events: none;
+}
+
+.lp__mono .mono__mark {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* light fade: a touch translucent, thinning toward its edges, like ink on the sleeve's
+       cardboard (no blur filter: iPhones render filtered elements at low resolution) */
+    opacity: 0.85;
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 45%, rgba(0, 0, 0, 0.55) 100%);
+    mask-image: radial-gradient(ellipse at center, #000 45%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* the same light fade on the names and the date: a touch translucent, thinning toward
+   both ends of each line, like ink on the sleeve */
+.lp__mono .mono__names,
+.lp__mono .mono__date {
+    opacity: 0.92;
+    -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.75), #000 25%, #000 75%, rgba(0, 0, 0, 0.75));
+    mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.75), #000 25%, #000 75%, rgba(0, 0, 0, 0.75));
+}
+
+/* opened: once the record is mostly out, the sleeve slides straight off to the left */
+.lp.is-open .lp__sleeve {
+    transform: translateX(-110vw);
+    transition-delay: 0.45s;
+}
+
+/* Vinyl record (starts tucked behind the sleeve) */
+
+.lp__vinyl {
+    position: absolute;
+    top: calc((var(--s) - var(--vinyl)) / 2);
+    left: calc((var(--s) - var(--vinyl)) / 2);
+    z-index: 1;
+    width: var(--vinyl);
+    height: var(--vinyl);
+    border-radius: 50%;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.35);
+    transition: transform 1.3s cubic-bezier(0.5, 0, 0.2, 1);
+}
+
+/* waiting: peek out of the sleeve, then keep hopping a little to the right */
+.lp.is-ready:not(.is-open) .lp__vinyl {
+    animation:
+        lp-peek 0.9s cubic-bezier(0.22, 0.8, 0.24, 1) forwards,
+        lp-hop 2.6s ease-in-out 0.9s infinite;
+}
+
+@keyframes lp-peek {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(var(--peek));
+    }
+}
+
+@keyframes lp-hop {
+    0%,
+    55%,
+    100% {
+        transform: translateX(var(--peek));
+    }
+
+    65% {
+        transform: translateX(calc(var(--peek) + var(--hop)));
+    }
+
+    74% {
+        transform: translateX(var(--peek));
+    }
+
+    81% {
+        transform: translateX(calc(var(--peek) + var(--hop) * 0.45));
+    }
+
+    88% {
+        transform: translateX(var(--peek));
+    }
+}
+
+/* opened: the record stays behind the sleeve and slides out of it to the right, all the
+   way off screen. The movement is a Web Animation started in main.js from the record's
+   current (hopping) position; this resting value keeps it off screen even if an animation
+   doesn't run, so it can never snap back to the middle (seen on iPhones). */
+.lp.is-open .lp__vinyl {
+    transform: translateX(110vw);
+}
+
+/* docked: back in the bottom right corner, tucked into it, rolling in from outside.
+   main.js moves the record to <body> first: on iOS Safari a fixed element left inside the
+   collapsed (height 0, overflow hidden) cover ended up under the page card. */
+.lp__vinyl.is-docked {
+    position: fixed;
+    z-index: 1000;
+    top: auto;
+    bottom: var(--dock-bottom);
+    left: auto;
+    right: var(--dock-right);
+    width: var(--dock);
+    height: var(--dock);
+    transform: none;
+    transition: none;
+    animation: lp-dock-in 0.9s cubic-bezier(0.22, 0.8, 0.24, 1);
+}
+
+@keyframes lp-dock-in {
+    from {
+        transform: translate(70%, 40%) rotate(160deg);
+    }
+}
+
+/* ...and a smaller label, leaving room on the record for the icon menu */
+.lp__vinyl.is-docked .lp__label {
+    width: 24%;
+    height: 24%;
+}
+
+.lp__vinyl.is-docked .lp__hole {
+    width: 10%;
+    height: 10%;
+}
+
+/* the part that spins: grooves, track gaps and the label */
+.lp__disc {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background:
+        /* outer rim */
+        radial-gradient(circle closest-side, transparent 97.2%, #2c2c2c 98.2%, #0d0d0d 100%),
+        /* gaps between songs */
+        radial-gradient(circle closest-side, transparent 59.5%, #0a0a0a 60%, #0a0a0a 61%, transparent 61.5%),
+        radial-gradient(circle closest-side, transparent 71.5%, #0a0a0a 72%, #0a0a0a 72.8%, transparent 73.3%),
+        radial-gradient(circle closest-side, transparent 83.5%, #0a0a0a 84%, #0a0a0a 85%, transparent 85.5%),
+        /* smooth run-out area around the label */
+        radial-gradient(circle closest-side, #121212 0, #121212 46%, transparent 46.6%),
+        /* fine grooves */
+        repeating-radial-gradient(circle closest-side, #151515 0, #151515 0.55%, #232323 0.85%, #151515 1.15%);
+}
+
+.lp.is-open .lp__disc {
+    animation: lp-spin 4s linear 1.1s infinite;
+}
+
+.lp__vinyl.is-docked .lp__disc {
+    animation: lp-spin 4s linear infinite;
+}
+
+@keyframes lp-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* light reflections stay still while the record turns underneath */
+.lp__shine {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+        conic-gradient(
+            from 25deg,
+            rgba(255, 255, 255, 0) 0deg,
+            rgba(255, 255, 255, 0.16) 28deg,
+            rgba(255, 255, 255, 0) 58deg,
+            rgba(255, 255, 255, 0) 180deg,
+            rgba(255, 255, 255, 0.11) 208deg,
+            rgba(255, 255, 255, 0) 238deg
+        );
+    -webkit-mask: radial-gradient(circle closest-side, transparent 37%, #000 38%);
+    mask: radial-gradient(circle closest-side, transparent 37%, #000 38%);
+    pointer-events: none;
+}
+
+/* Center label: a small round copy of the LP cover (photo + S & H monogram, see
+   images/lp-label.jpg), spinning with the record */
+
+.lp__label {
+    position: relative;
+    width: 38%;
+    height: 38%;
+    overflow: hidden;
+    border-radius: 50%;
+    background: url('../images/lp-label.jpg') center / cover no-repeat, #1d1a17;
+    /* a thin darker ring where the paper label meets the vinyl */
+    box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, 0.35),
+        inset 0 0 18px rgba(0, 0, 0, 0.3);
+}
+
+/* spindle hole */
+.lp__hole {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--vinyl) * 0.022);
+    height: calc(var(--vinyl) * 0.022);
+    border-radius: 50%;
+    background: #3a3f3c;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+    transform: translate(-50%, -50%);
+}
+
+/* Menu on the docked record: Material icons placed along its visible (left) half.
+   Each item sits at angle --a on radius --r and is counter-rotated so the icon stays upright.
+   This layer does not spin. */
+
+.lp__nav,
+.lp__arm {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.lp__nav {
+    /* all icons on one ring, evenly spaced, between the label and the outer grooves */
+    --r: calc(var(--dock) * 0.37);
+    --icon: 30px; /* tap box around a 25px glyph */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease 0.6s, visibility 0s linear 0.6s;
+}
+
+.lp__vinyl.is-docked .lp__nav {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lp__nav-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) rotate(var(--a)) translate(var(--r)) rotate(calc(-1 * var(--a)));
+}
+
+a.lp__nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon);
+    height: var(--icon);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.92);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+/* just the icon, no chip around it */
+.lp__nav .material-symbols-rounded {
+    font-size: 25px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* line-art SVG icon (the gift box shared with the Amazon card), sized and
+   shadowed like the Material glyphs */
+.lp__nav-svg {
+    width: 25px;
+    height: 25px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+}
+
+/* phones: smaller icons */
+@media (max-width: 767px) {
+    .lp__nav {
+        --icon: 26px;
+    }
+
+    .lp__nav .material-symbols-rounded {
+        font-size: 20px;
+    }
+
+    .lp__nav-svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+a.lp__nav-item:hover,
+a.lp__nav-item:focus-visible {
+    color: var(--lp-kraft);
+    outline: none;
+}
+
+/* label tooltip to the left of each icon (pointer devices) */
+.lp__nav-label {
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(31, 28, 26, 0.85);
+    color: #fff;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(6px, -50%);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+a.lp__nav-item:hover .lp__nav-label,
+a.lp__nav-item:focus-visible .lp__nav-label {
+    opacity: 1;
+    transform: translate(0, -50%);
+}
+
+/* touch screens have no hover: no tooltips (they would stick after a tap) */
+@media (hover: none) {
+    .lp__nav-label {
+        display: none;
+    }
+}
+
+/* Tonearm: pivot off screen at the record's upper right; the arm, headshell and needle rest
+   on the visible top of the record, clear of the icons. Swings in once docked. */
+
+.lp__arm {
+    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.35));
+}
+
+.lp__arm-swing {
+    opacity: 0;
+    transform-box: view-box;
+    transform-origin: 900px 0px;
+    transform: rotate(-45deg);
+    transition: transform 0.9s cubic-bezier(0.3, 0.7, 0.3, 1) 0.2s, opacity 0.3s ease 0.2s;
+}
+
+.lp__vinyl.is-docked .lp__arm-swing {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+/* Portrait screens (phones, iPad upright): smaller sleeve so the peeking record fits */
+
+@media (max-aspect-ratio: 1/1) {
+    .lp {
+        --s: min(70vw, 50vh);
+    }
+
+    .lp__label {
+        width: 42%;
+        height: 42%;
+    }
+}
+
+/* Phones only: the sleeve plus its peeking record span the width with just 3px on each
+   side and sit dead center; the record peeks out less and hops a little less. The
+   closed piece is (0.98 + 0.14) sleeves wide, so --s = (100vw - 6px) / 1.12. */
+
+@media (max-width: 767px) {
+    .lp {
+        --s: calc((100vw - 6px) / 1.12);
+        --peek: calc(var(--s) * 0.14);
+        --hop: calc(var(--s) * 0.03);
+        width: calc(var(--s) * 1.12);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lp.is-ready:not(.is-open) .lp__vinyl {
+        animation: none;
+        transform: translateX(var(--peek));
+    }
+
+    .lp__vinyl,
+    .lp__sleeve,
+    .lp__arm-swing,
+    .lp__nav,
+    .lp-hero,
+    .page-card {
+        transition: none;
+    }
+
+    .lp__vinyl.is-docked,
+    .lp.is-open .lp__disc,
+    .lp__vinyl.is-docked .lp__disc {
+        animation: none;
+    }
+}
+
+/* ------------------------------------------------------------------
+ * Wedding events timeline (#events on index.html)
+ * A thin center line; items alternate right / left, each with a short
+ * tick to the line, a thin outline icon, the time and the event name.
+ * Each item overlaps the previous one by --tl-stagger so the two sides
+ * interleave.
+ * ------------------------------------------------------------------ */
+
+.wed-timeline {
+    --tl-tick: 44px;
+    --tl-gap: 18px;
+    --tl-icon: 64px;
+    --tl-stagger: 64px;
+    --tl-ink: #333;
+    position: relative;
+    max-width: 760px;
+    margin: 10px auto 0;
+    padding: 24px 0;
+    list-style: none;
+    color: var(--tl-ink);
+}
+
+.wed-timeline::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--tl-ink);
+}
+
+.wed-timeline__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--tl-gap);
+    width: 50%;
+    min-height: 128px;
+}
+
+.wed-timeline__item + .wed-timeline__item {
+    margin-top: calc(-1 * var(--tl-stagger));
+}
+
+.wed-timeline__item::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: var(--tl-tick);
+    height: 1px;
+    background: var(--tl-ink);
+}
+
+.wed-timeline__item--right {
+    margin-left: 50%;
+    padding-left: calc(var(--tl-tick) + var(--tl-gap));
+    text-align: left;
+}
+
+.wed-timeline__item--right::before {
+    left: 0;
+}
+
+.wed-timeline__item--left {
+    flex-direction: row-reverse;
+    padding-right: calc(var(--tl-tick) + var(--tl-gap));
+    text-align: right;
+}
+
+.wed-timeline__item--left::before {
+    right: 0;
+}
+
+.wed-timeline__icon.material-symbols-rounded {
+    flex: none;
+    width: var(--tl-icon);
+    font-size: var(--tl-icon);
+    line-height: 1;
+    text-align: center;
+    font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 48;
+}
+
+.wed-timeline__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: 'Open Sans', sans-serif;
+    text-transform: uppercase;
+    line-height: 1.5;
+}
+
+.wed-timeline__time {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+.wed-timeline__name {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.26em;
+}
+
+/* a short note under an event's name ("Con previa invitación"): the same font
+   as the venue address (Open Sans, upright), in sand */
+.wed-timeline__note {
+    display: block;
+    margin-top: 4px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #8a7b5f;
+}
+
+@media (max-width: 575px) {
+    .wed-timeline__note {
+        font-size: 11px;
+    }
+}
+
+/* Phones: shorter ticks, icon stacked over the text */
+@media (max-width: 575px) {
+    .wed-timeline {
+        --tl-tick: 16px;
+        --tl-gap: 10px;
+        --tl-icon: 42px;
+        --tl-stagger: 64px;
+        margin-top: 6px;
+    }
+
+    .wed-timeline__item {
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        min-height: 140px;
+    }
+
+    .wed-timeline__item--right {
+        align-items: flex-start;
+    }
+
+    .wed-timeline__item--left {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .wed-timeline__time {
+        font-size: 13px;
+        letter-spacing: 0.14em;
+    }
+
+    .wed-timeline__name {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+    }
+}
+
+/* Formal center line: a sand double hairline (like a printed invitation rule)
+   that fades in and out at the ends, capped top and bottom by an outlined
+   diamond with a dot (the same finial as the section dividers). Each event's
+   tick is sand too and meets the line at a small outlined diamond. */
+.wed-timeline {
+    --tl-line: rgba(163, 149, 121, 0.75);
+}
+
+.wed-timeline::before {
+    top: 14px;
+    bottom: 14px;
+    width: 5px;
+    margin-left: -2.5px;
+    background: linear-gradient(to right,
+        var(--tl-line) 0 1px, transparent 1px 4px, var(--tl-line) 4px 5px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+}
+
+/* finials at both ends of the line */
+.wed-timeline::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 16px;
+    margin-left: -8px;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.2 L14.8 8 L8 14.8 L1.2 8 Z' fill='%23fff' stroke='%23a39579' stroke-width='1'/%3E%3Ccircle cx='8' cy='8' r='1.6' fill='%23a39579'/%3E%3C/svg%3E") center top / 16px 16px no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.2 L14.8 8 L8 14.8 L1.2 8 Z' fill='%23fff' stroke='%23a39579' stroke-width='1'/%3E%3Ccircle cx='8' cy='8' r='1.6' fill='%23a39579'/%3E%3C/svg%3E") center bottom / 16px 16px no-repeat;
+    pointer-events: none;
+}
+
+.wed-timeline__item::before {
+    background: linear-gradient(var(--tl-dir, to right), var(--tl-line), rgba(163, 149, 121, 0.25));
+}
+
+.wed-timeline__item--left {
+    --tl-dir: to left;
+}
+
+/* node where the tick meets the line */
+.wed-timeline__item::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    margin-top: -4.5px;
+    border: 1px solid #a39579;
+    background: var(--paper, #fff);
+    transform: rotate(45deg);
+}
+
+.wed-timeline__item--right::after {
+    left: -4.5px;
+}
+
+.wed-timeline__item--left::after {
+    right: -4.5px;
+}
+
+.wed-timeline__item--venue::after {
+    top: calc(var(--tl-icon) / 2);
+}
+
+/* Venue under an event: place name, address and a Google Maps link */
+.wed-timeline__venue {
+    display: flex;
+    flex-direction: column;
+    align-items: inherit;
+    gap: 6px;
+    margin-top: 12px;
+    text-transform: none;
+}
+
+.wed-timeline__item--left .wed-timeline__venue {
+    align-items: flex-end;
+}
+
+.wed-timeline__place {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+}
+
+.wed-timeline__address {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #777;    text-wrap: pretty; /* no lone "N.L." on the last line */
+}
+
+@media (max-width: 575px) {
+    .wed-timeline__place {
+        font-size: 16px;
+    }
+
+    .wed-timeline__address {
+        font-size: 11px;
+    }
+}
+
+/* Items with a venue are tall: pin the icon and tick to the top, beside the time */
+.wed-timeline__item--venue {
+    align-items: flex-start;
+}
+
+.wed-timeline__item--venue::before {
+    top: calc(var(--tl-icon) / 2);
+}
+
+.wed-timeline__item--venue .wed-timeline__text {
+    padding-top: calc(var(--tl-icon) / 2 - 23px);
+}
+
+@media (max-width: 575px) {
+    .wed-timeline__item--venue .wed-timeline__text {
+        padding-top: 0;
+    }
+
+    /* keep the stacked icon next to the line on left-side items */
+    .wed-timeline__item--left.wed-timeline__item--venue {
+        align-items: flex-end;
+    }
+}
+
+/* ------------------------------------------------------------------
+ * .btn-sand: sand-colored pill button (used for the "Ver en Google Maps"
+ * links): a soft, translucent sand background with the icon in a darker
+ * sand, pinned left; the label is centered in the space that is left.
+ * ------------------------------------------------------------------ */
+
+.btn-sand {
+    --btn-sand: 214, 207, 189; /* #d6cfbd */
+    display: inline-grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    width: 210px;
+    max-width: 100%;
+    min-height: 34px;
+    margin: 6px 0 5px;
+    padding: 0 14px 0 10px;
+    border-radius: 999px;
+    background: rgba(var(--btn-sand), 0.35);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: #333;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.btn-sand:hover,
+.btn-sand:focus-visible {
+    background: rgba(var(--btn-sand), 0.55);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.07);
+    color: #222;
+    transform: translateY(-1px);
+}
+
+.btn-sand:active {
+    transform: none;
+}
+
+.btn-sand .material-symbols-rounded {
+    justify-self: start;
+    font-size: 20px;
+    color: #a39579; /* darker shade of the sand color */
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.btn-sand__label {
+    text-align: center;
+}
+
+
+
+@media (max-width: 575px) {
+    .btn-sand {
+        width: 150px;
+        min-height: 30px;
+        padding: 0 10px 0 8px;
+        font-size: 9px;
+        letter-spacing: 0.06em;
+    }
+
+    .btn-sand .material-symbols-rounded {
+        font-size: 17px;
+    }
+}
+
+/* words shown only on wider screens ("Ver en" in "Ver en Google Maps") */
+@media (max-width: 575px) {
+    .btn-sand__desk {
+        display: none;
+    }
+
+    /* the itinerary's map buttons just wrap "Google Maps" with a small padding */
+    .wed-timeline .btn-sand {
+        justify-self: start;
+        align-self: flex-start;
+        width: auto;
+        column-gap: 6px;
+        padding: 0 11px 0 8px;
+    }
+
+    .wed-timeline__item--left .btn-sand {
+        align-self: flex-end;
+    }
+}
+
+/* Timeline icons drawn as inline SVG (Cena, Abre la pista): line art in the
+   text color, stroke matched to the thin Material Symbols icons */
+.wed-timeline__icon--svg {
+    flex: none;
+    width: var(--tl-icon);
+    height: var(--tl-icon);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* filled with the card color so the shape covers what is behind it
+   (the serving hand in front of the tray) */
+.wed-timeline__icon--svg .is-solid {
+    fill: var(--paper, #fff);
+}
+
+/* Parents' names in the "Con la bendición de Dios…" section (#couple):
+   one name per line in Cormorant Garamond, with an italic sand "&" between */
+.parents-names {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    line-height: 1.3;
+    color: #333;
+    text-wrap: balance;
+}
+
+.parents-names__amp {
+    font-style: italic;
+    font-size: 0.95em;
+    color: #a39579;
+}
+
+/* the couple's names under "¡Nos casamos!", like their printed reference:
+   large spaced serif capitals in soft gray with a faint letterpress shadow,
+   and a script "y" between two hairlines. The template styles every
+   ".heading span" as a small gray kicker, so the spans reset that. */
+#couple .heading .couple-names {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 6px auto 0;
+    color: #6f6f6f;
+}
+
+#couple .heading .couple-names__name {
+    display: block;
+    margin: 0;
+    /* letter-spacing adds space after the last letter; pad the left to stay centered */
+    padding-left: 0.28em;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 82px;
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #6f6f6f;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+}
+
+#couple .heading .couple-names__and {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 22px;
+    width: min(520px, 82%);
+    margin: 2px 0 4px;
+    font-family: 'Pinyon Script', cursive;
+    font-size: 46px;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #7a7a7a;
+}
+
+#couple .heading .couple-names__and::before,
+#couple .heading .couple-names__and::after {
+    content: "";
+    height: 1px;
+    background: #9a9a9a;
+}
+
+/* "y queremos celebrar contigo nuestra boda": small spaced capitals */
+#couple .heading .couple-names__invite {
+    margin: 34px auto 0;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #777;
+}
+
+@media (max-width: 575px) {
+    #couple .heading .couple-names__name {
+        font-size: 50px;
+    }
+
+    #couple .heading .couple-names__and {
+        column-gap: 14px;
+        font-size: 34px;
+    }
+
+    #couple .heading .couple-names__invite {
+        margin: 32px auto 0;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+    }
+}
+
+/* the first section ends with the invite line (the parents moved below the photo) */
+#couple .heading {
+    margin-bottom: 0;
+}
+
+/* "¡Nos casamos!" stays small so the names below it lead */
+#couple .heading h2 {
+    margin-bottom: 22px;
+    font-size: 36px;
+}
+
+/* #parents (below the photo): "Con la bendición de Dios y de nuestros padres:"
+   in the same script, size and color as "¡Nos casamos!" */
+#parents .heading {
+    margin-bottom: 2em;
+}
+
+#parents .heading p {
+    width: auto;
+    margin-bottom: 0;
+    font-family: 'Great Vibes', cursive;
+    font-size: 36px;
+    line-height: 1.3;
+    color: #000;
+    text-wrap: balance; /* on phones: two even lines, no lone "padres:" */
+}
+
+/* #parents: the bride's parents on the left, the couple's pen drawing in the
+   center (images/couple-drawing.png, cut from their sketch by
+   source-images/make-couple-drawing.py) and the groom's parents on the right,
+   each side aligned toward the drawing. Phones keep the same row, smaller. */
+.parents-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 36px;
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+.couple-drawing {
+    display: block;
+    width: auto;
+    max-width: none;
+    height: 120px; /* about the height of each side's title and names */
+}
+
+.parents-side--bride {
+    text-align: right;
+}
+
+/* the names stack is as wide as its longest name, with the "&" centered
+   under it; the stack itself sits against the drawing */
+.parents-side .parents-names {
+    display: inline-flex;
+    align-items: center;
+    text-align: center;
+}
+
+/* on phones each name breaks between first names and last names, so both
+   sides have the same shape; elsewhere the break is hidden */
+.parents-names__br {
+    display: none;
+}
+
+.parents-side--groom {
+    text-align: left;
+}
+
+/* "Padres de la novia / del novio": formal serif caps */
+.parents-side h3 {
+    margin: 0 0 14px;
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #333;
+}
+
+/* ------------------------------------------------------------------
+ * Floral corners on the page card (images/floral-corner-tl.webp and
+ * -br.webp, cut from the couple's reference by
+ * source-images/make-floral-corners.py): blue hydrangeas, white flowers
+ * and eucalyptus in the card's top-left corner (over the first section)
+ * and bottom-right corner (over the end of the RSVP section). They are
+ * inside .page-card, so its rounded corners and overflow: hidden trim them.
+ * ------------------------------------------------------------------ */
+
+.card-floral {
+    position: absolute;
+    z-index: 2;
+    width: clamp(170px, 24vw, 340px);
+    max-width: none;
+    height: auto;
+    pointer-events: none;
+}
+
+.card-floral--tl {
+    top: 0;
+    left: 0;
+}
+
+.card-floral--br {
+    right: 0;
+    bottom: 0;
+}
+
+/* room for the bottom-right flowers below the RSVP content, and space under
+   the card at the end of the page so the docked record (bottom-right corner
+   of the screen) rests below the card instead of covering the flowers */
+#invitation {
+    padding-bottom: clamp(150px, 19vw, 280px);
+}
+
+.lp-page .page-card {
+    margin-bottom: calc(var(--dock) * 0.78);
+}
+
+/* Phones: compact first section (smaller corner flowers and title) and a
+   compact parents section (smaller drawing and names, tighter gaps) */
+@media (max-width: 575px) {
+    .card-floral--tl {
+        width: 140px;
+    }
+
+    /* room under the top-left flowers for the first section's title */
+    #couple {
+        padding-top: 118px;
+        padding-bottom: 36px;
+    }
+
+
+    #couple .heading h2 {
+        margin-bottom: 28px;
+        font-size: 25px;
+        line-height: 1.2;
+    }
+
+    #parents .heading {
+        margin-bottom: 18px;
+    }
+
+    #parents .heading p {
+        font-size: 25px;
+        line-height: 1.25;
+    }
+
+    /* same three-part row as on a computer, just smaller */
+    .parents-row {
+        column-gap: 10px;
+    }
+
+    .couple-drawing {
+        height: 116px;
+    }
+
+    .parents-side h3 {
+        margin-bottom: 6px;
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+    }
+
+    .parents-names {
+        gap: 0;
+        font-size: 15px;
+        line-height: 1.2;
+    }
+
+    .parents-names__br {
+        display: inline;
+    }
+}
+
+/* ------------------------------------------------------------------
+ * Countdown on white: the template draws it over a photo with white
+ * text; here it sits on the card like every other section (no gray
+ * backgrounds or dividers for now), so its text uses the page ink.
+ * ------------------------------------------------------------------ */
+
+#countdown.section {
+    background: transparent;
+}
+
+#countdown .heading {
+    margin-bottom: 3em;
+}
+
+#countdown .heading h2,
+#countdown .heading p,
+#countdown .timer .timer-item_text {
+    color: #333;
+}
+
+/* the digits in the soft gray serif of the couple's names and the date */
+#countdown .timer .timer-item .digit {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-variant-numeric: lining-nums;
+    color: #6f6f6f;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+}
+
+/* the date under "El gran día", like the couple's reference: the month on top,
+   the day large in the middle, the weekday and the year between two hairlines
+   on each side. Same serif and soft gray as the couple's names. Plain divs,
+   because the template styles every ".heading span" as a small kicker. */
+#countdown .date-block {
+    margin: 10px auto 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-variant-numeric: lining-nums;
+    color: #6f6f6f;
+}
+
+#countdown .date-block__month {
+    padding-left: 0.24em; /* letter-spacing pad keeps it centered */
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #555;
+}
+
+#countdown .date-block__row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 26px;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+#countdown .date-block__side {
+    /* both sides the same height, text centered, so the hairlines line up */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 54px;
+    padding: 0 0 0 0.16em;
+    line-height: 1;
+    border-top: 1px solid #9a9a9a;   /* gray hairlines, like the ones around the names' "y" */
+    border-bottom: 1px solid #9a9a9a;
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #555;
+}
+
+/* the year: this serif's digits look smaller than its capitals at the same
+   size, so it is set larger to match "FEBRERO" */
+#countdown .date-block__side--year {
+    font-size: 26px;
+}
+
+/* the day, highlighted: large and light, in the names' soft gray */
+#countdown .date-block__day {
+    font-size: 104px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1;
+    color: #6f6f6f;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+}
+
+/* "Faltan", above the countdown digits */
+#countdown .countdown-faltan {
+    margin: 18px 0 6px;
+    padding-left: 0.24em;
+    font-family: 'Cormorant Garamond', serif; /* same as the date and the names */
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #555;
+}
+
+@media (max-width: 575px) {
+    #countdown .date-block__month {
+        font-size: 16px;
+    }
+
+    #countdown .date-block__side--year {
+        font-size: 19px;
+    }
+
+    #countdown .date-block__row {
+        column-gap: 12px;
+    }
+
+    #countdown .date-block__side {
+        height: 40px;
+        padding: 0 0 0 0.1em;
+        font-size: 15px;
+        letter-spacing: 0.1em;
+    }
+
+    #countdown .date-block__day {
+        font-size: 78px;
+    }
+
+    #countdown .countdown-faltan {
+        margin-top: 14px;
+        font-size: 19px;
+    }
+}
+
+#countdown .timer .timer-item .smalltext {
+    color: #a39579;
+    letter-spacing: 0.12em;
+}
+
+/* ------------------------------------------------------------------
+ * Gift registry (#gifts on index.html): three option cards (Amazon,
+ * Liverpool, bank transfer). Each card is white, with a thin sand border
+ * and a soft shadow, a line icon on top, a small uppercase store kicker,
+ * a Cormorant Garamond title and a .btn-sand pinned to the bottom so the
+ * buttons line up across the row. Stacked on phones.
+ * ------------------------------------------------------------------ */
+
+#gifts .gift-intro,
+#invitation .rsvp-intro,
+#invitation .rsvp-whatsapp__text {
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    font-style: italic;
+    line-height: 1.45;
+    color: #333;
+    text-wrap: balance;
+}
+
+.gift-list {
+    margin-top: 10px;
+}
+
+.gift-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 34px 26px 28px;
+    border: 1px solid rgba(214, 207, 189, 0.7); /* sand #d6cfbd */
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.45); /* a lighter sheet on the card paper */
+    box-shadow: 0 6px 18px rgba(62, 111, 163, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.gift-card:hover {
+    box-shadow: 0 10px 26px rgba(62, 111, 163, 0.11), 0 2px 5px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+/* line icon, same stroke as the #couple icons */
+.gift-card__icon {
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    fill: none;
+    stroke: #333;
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.gift-card__store {
+    margin-bottom: 4px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #a39579; /* darker sand */
+}
+
+.gift-card__title {
+    margin: 0 0 14px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.25;
+    color: #333;
+    text-wrap: balance;
+}
+
+/* label / value rows (event number, bank details) */
+.gift-card__details {
+    width: 100%;
+    margin: 0 0 6px;
+}
+
+.gift-card__row {
+    padding: 7px 0;
+    border-top: 1px solid rgba(214, 207, 189, 0.5);
+}
+
+.gift-card__row:last-child {
+    border-bottom: 1px solid rgba(214, 207, 189, 0.5);
+}
+
+.gift-card__details dt {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6f9fd0; /* hydrangea blue */
+}
+
+.gift-card__details dd {
+    margin: 2px 0 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    line-height: 1.3;
+    color: #333;
+}
+
+/* CLABE: tabular digits, slightly spaced, never broken mid-group */
+.gift-card__clabe {
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+/* Compact cards (Amazon and bank transfer): same narrower column for both,
+   stretched to the same height, with a smaller icon, title, rows and
+   padding */
+.gift-card--compact {
+    padding: 24px 20px 22px;
+}
+
+.gift-card--compact .gift-card__icon {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 10px;
+}
+
+.gift-card--compact .gift-card__title {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.gift-card--compact .gift-card__row {
+    padding: 5px 0;
+}
+
+.gift-card--compact .gift-card__details dd {
+    font-size: 17px;
+}
+
+.gift-card--compact .gift-card__action {
+    padding-top: 12px;
+}
+
+/* the button sits at the bottom of the card */
+.gift-card__action {
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+/* Gift buttons: small outlined pills (they are just links): a sand hairline,
+   spaced capitals in a dark sand, a small arrow that slides on hover, and a
+   soft sand fill on hover. The copy button uses the same look. */
+.gift-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 18px 8px 20px;
+    border: 1px solid rgba(163, 149, 121, 0.6);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.5);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #7d6f55;
+    cursor: pointer;
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.gift-btn > i {
+    font-size: 10px;
+    color: #a39579;
+    transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.gift-btn:hover,
+.gift-btn:focus-visible {
+    border-color: #a39579;
+    background: rgba(214, 207, 189, 0.35);
+    color: #5e533f;
+    box-shadow: 0 3px 10px rgba(120, 95, 60, 0.12);
+    outline: none;
+}
+
+.gift-btn:hover > .fa-arrow-right,
+.gift-btn:focus-visible > .fa-arrow-right {
+    transform: translateX(3px);
+}
+
+button.gift-btn {
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* "¡Copiada!" feedback: a hydrangea tint for ~2s */
+.gift-btn.is-copied {
+    border-color: #6f9fd0;
+    background: rgba(169, 200, 232, 0.35);
+    color: #3e6fa3;
+}
+
+.gift-btn.is-copied > i {
+    color: #3e6fa3;
+}
+
+/* .btn-sand with a Font Awesome icon instead of a Material Symbol */
+.btn-sand > i {
+    justify-self: start;
+    width: 20px;
+    font-size: 14px;
+    text-align: center;
+    color: #a39579;
+}
+
+/* .btn-sand used on a <button> (Copiar CLABE) */
+button.btn-sand {
+    border: 0;
+    cursor: pointer;
+    line-height: inherit;
+}
+
+/* "¡Copiada!" feedback: a hydrangea tint for ~2s */
+.btn-sand.is-copied {
+    background: rgba(169, 200, 232, 0.45); /* #a9c8e8 */
+}
+
+.btn-sand.is-copied > i {
+    color: #3e6fa3;
+}
+
+@media (max-width: 575px) {
+    #gifts .gift-intro {
+        margin-bottom: 0;
+        font-size: 19px;
+    }
+
+    #invitation .rsvp-intro,
+    #invitation .rsvp-whatsapp__text {
+        font-size: 19px;
+    }
+
+    /* pull the cards up closer to the intro text */
+    .gift-list {
+        --bs-gutter-y: 18px;
+        margin-top: -12px;
+    }
+
+    .gift-card {
+        padding: 26px 18px 22px;
+    }
+
+    .gift-card__icon {
+        width: 54px;
+        height: 54px;
+        margin-bottom: 12px;
+    }
+
+    .gift-card__title {
+        font-size: 22px;
+    }
+
+    .gift-card__details dd {
+        font-size: 18px;
+    }
+
+    .btn-sand > i {
+        width: 17px;
+        font-size: 12px;
+    }
+}
+
+/* ------------------------------------------------------------------
+ * Dress code (#dresscode on index.html)
+ * A compact summary like the couple's reference: the suit with
+ * "Hombres" on the left and "Mujeres" with the long dress on the right,
+ * mirrored around a sand hairline; one shared line with the colors to
+ * avoid (crossed-out chips); then the adults-only note. Same thin line
+ * art and serif type as #couple and #events; no CSS filter (iOS).
+ * ------------------------------------------------------------------ */
+
+#dresscode {
+    --dress-ink: #333;
+    --dress-sand: #a39579;
+    --dress-rule: rgba(163, 149, 121, 0.45);
+    background-color: transparent;
+    color: var(--dress-ink);
+}
+
+#dresscode .heading {
+    margin-bottom: 1.6em;
+}
+
+/* line art in the text color, same stroke as .couple-icon */
+.dress-side__icon,
+.dress-kids__icon {
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* filled with the card color so the shape covers what is behind it
+   (the bear's head and body in front of its ears, arms and legs) */
+.dress-kids__icon .is-solid {
+    fill: var(--paper, #fff);
+}
+
+/* Compact pair, mirrored around a sand hairline: [suit | Hombres] [Mujeres | dress] */
+.dress-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.dress-side {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 4px 26px;
+}
+
+.dress-side--men {
+    justify-content: flex-end;
+    text-align: left;
+}
+
+.dress-side--women {
+    justify-content: flex-start;
+    border-left: 1px solid var(--dress-rule);
+    text-align: right;
+}
+
+.dress-side__icon {
+    flex: none;
+    width: auto;
+    height: 104px;
+    color: var(--dress-ink);
+    stroke-width: 0.9; /* the icons are drawn larger than 48 units */
+}
+
+/* formal serif caps, like "Padres del novio / de la novia" */
+.dress-col__title {
+    margin: 0 0 4px;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dress-ink);
+}
+
+.dress-col__main {
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 23px;
+    line-height: 1.2;
+    color: var(--dress-ink);
+    text-wrap: balance;
+}
+
+/* shared line with the colors to avoid, centered under the pair */
+.dress-avoid-block {
+    margin-top: 22px;
+    text-align: center;
+}
+
+/* colors to avoid: a muted red line that reads as a warning, then round
+   chips (hairline edge so white still shows) with the color named under each */
+.dress-col__avoid {
+    margin: 0 0 12px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 1.35;
+    color: #b23a3a;
+    text-wrap: balance;
+}
+
+.dress-avoid {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dress-avoid__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+/* a "not allowed" chip: the color inside a muted red ring with a slash */
+.dress-avoid__dot {
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid #b23a3a;
+    border-radius: 50%;
+    background:
+        linear-gradient(135deg, transparent calc(50% - 0.75px), #b23a3a calc(50% - 0.75px) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+        var(--dress-c, #ccc);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dress-avoid__name {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #777;
+}
+
+/* Children note: a crossed-out teddy bear left of one short paragraph */
+.dress-kids {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    max-width: 580px;
+    margin: 3.2em auto 0;
+    padding-top: 2.2em;
+    border-top: 1px solid var(--dress-rule);
+    text-align: left;
+}
+
+.dress-kids__icon {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    color: var(--dress-ink);
+}
+
+.dress-kids__text {
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 21px;
+    line-height: 1.45;
+    color: var(--dress-ink);
+}
+
+/* "solo para adultos": bold Playfair caps, tight spacing so it stands out */
+.dress-kids__adults {
+    font-family: 'Playfair Display', serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 0.8em;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #222;
+}
+
+/* Phones: the pair stays side by side, just smaller */
+@media (max-width: 575px) {
+    .dress-side {
+        gap: 8px;
+        padding: 2px 10px;
+    }
+
+    .dress-side__icon {
+        height: 74px;
+    }
+
+    .dress-col__title {
+        font-size: 12px;
+        letter-spacing: 0.14em;
+    }
+
+    .dress-col__main {
+        font-size: 17px;
+    }
+
+    .dress-col__avoid {
+        font-size: 18px;
+    }
+
+    .dress-avoid__dot {
+        width: 28px;
+        height: 28px;
+    }
+
+    .dress-kids {
+        gap: 14px;
+        max-width: 330px;
+        margin-top: 2.6em;
+        padding-top: 1.8em;
+    }
+
+    .dress-kids__icon {
+        width: 46px;
+        height: 46px;
+    }
+
+    .dress-kids__text {
+        font-size: 19px;
+    }
+}
+
+/* ------------------------------------------------------------------
+ * Polaroid on the RSVP section (#invitation, right column; replaces the
+ * template's video card): a photo of the couple in a classic white
+ * instant-photo frame (thicker bottom margin); three of them sit in a row
+ * under the RSVP box (see .polaroid-row).
+ * No CSS filter anywhere: iOS WebKit renders filtered elements low-res.
+ * ------------------------------------------------------------------ */
+
+.polaroid {
+    width: min(100%, 320px);
+    margin: 10px auto 0;
+    container-type: inline-size;
+}
+
+.polaroid__frame {
+    position: relative;
+    padding: 6% 6% 23%;
+    border-radius: 2px;
+    /* barely warm white, a touch darker toward the bottom like real stock */
+    background: linear-gradient(172deg, #fff 0%, #fdfcfa 60%, #f7f5f0 100%);
+    transform: rotate(-4deg);
+    /* contact shadow + soft lift, slightly offset down and right */
+    box-shadow:
+        0 1px 1px rgba(51, 51, 51, 0.10),
+        0 2px 4px rgba(51, 51, 51, 0.08),
+        2px 10px 18px -4px rgba(40, 52, 66, 0.20),
+        6px 26px 40px -12px rgba(40, 52, 66, 0.22);
+}
+
+.polaroid__photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: 50% 40%;
+    background: #d9d4c9;
+    /* the print sits slightly recessed in the frame */
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    outline: 1px solid rgba(51, 51, 51, 0.06);
+    outline-offset: -1px;
+}
+
+/* Three polaroids in a row under the RSVP box, like prints laid on the
+   table: each tilted its own way, the middle one a little higher and on top,
+   overlapping their neighbours slightly. No caption, so the frame's bottom
+   margin is a bit narrower than a classic instant photo's. */
+.polaroid-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 900px;
+    margin: 36px auto 0;
+    padding: 0 10px;
+}
+
+.polaroid-row .polaroid {
+    flex: 0 1 300px;
+    width: auto;
+    min-width: 0;
+    margin: 0 -14px; /* slight overlap between neighbours */
+}
+
+.polaroid-row .polaroid__frame {
+    padding: 6% 6% 17%;
+}
+
+.polaroid--1 .polaroid__frame {
+    transform: rotate(-6deg);
+}
+
+.polaroid--2 {
+    position: relative;
+    z-index: 1;
+    margin-top: -14px !important;
+}
+
+.polaroid--2 .polaroid__frame {
+    transform: rotate(2.5deg);
+}
+
+.polaroid--3 .polaroid__frame {
+    transform: rotate(-3deg) translateY(10px);
+}
+
+@media (max-width: 575px) {
+    .polaroid-row {
+        margin-top: 24px;
+        padding: 0 6px;
+    }
+
+    /* phones: two side by side, then the third centered on its own line,
+       tucked slightly under the pair */
+    .polaroid-row {
+        flex-wrap: wrap;
+    }
+
+    .polaroid-row .polaroid {
+        flex: 0 0 52%;
+        margin: 0 -2%;
+    }
+
+    .polaroid--2 {
+        margin-top: 8px !important;
+    }
+
+    .polaroid-row .polaroid--3 {
+        margin-top: -10px;
+    }
+}
+
+/* ------------------------------------------------------------------
+ * Photo band between #couple and #countdown: RG4029 (web copies
+ * photo-band.jpg 2000px / photo-band-sm.jpg 1000px) across the whole card
+ * width, with torn white paper edges top and bottom (torn-edge-top.png and
+ * torn-edge-bottom.png, flipped; made by source-images/make-torn-edges.py).
+ * The crop keeps the couple centered at any width: the image covers the
+ * band (--iw x --ih, 3:2, zoomed to at least 1.39x the band width) and is
+ * shifted so the couple's point (36% across, 58% down) sits at the middle,
+ * clamped so no edge of the photo shows.
+ * ------------------------------------------------------------------ */
+
+.photo-band {
+    --bh: clamp(280px, 40vw, 600px);           /* band height */
+    /* per photo: the point to keep in the middle (fraction across / down the
+       photo) and the minimum zoom that lets it reach the middle without the
+       photo's edge showing (50cqw / --fx when --fx < 0.5) */
+    --fx: 0.55;
+    --fy: 0.37;
+    --zoom: 112cqw;
+    position: relative;
+    height: var(--bh);
+    overflow: hidden;
+    background: transparent;
+    container-type: inline-size;
+}
+
+.photo-band__img {
+    /* rendered photo width (3:2): at least 1.39x the band, the minimum that lets the
+       couple (36% across) reach the middle without the photo's left edge showing */
+    --iw: max(var(--zoom), calc(var(--bh) * 1.5));
+    --ih: calc(var(--iw) / 1.5);
+    position: absolute;
+    left: clamp(calc(100cqw - var(--iw)), calc(50cqw - var(--iw) * var(--fx)), 0px);
+    --it: clamp(calc(var(--bh) - var(--ih)), calc(var(--bh) * 0.5 - var(--ih) * var(--fy)), 0px);   /* top offset (<= 0) */
+    top: var(--it);
+    width: var(--iw);
+    max-width: none;
+    height: var(--ih);
+    /* keep the photo 3px inside the band's top and bottom: at fractional
+       pixel positions its edge otherwise peeked out above the torn paper */
+    clip-path: inset(calc(3px - var(--it)) 0 calc(var(--ih) + var(--it) - var(--bh) + 3px) 0);
+}
+
+.photo-band::before,
+.photo-band::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    height: clamp(26px, 4.5vw, 64px);
+    /* the card's paper, cut to the torn shape: the PNG (white with alpha) is a
+       mask, plus a solid 4px rim on the outer side, because scaling the PNG
+       leaves its outer row slightly transparent (a faint photo line showed) */
+    background: var(--paper) var(--paper-img) 0 0 / 512px 512px repeat;
+    -webkit-mask:
+        linear-gradient(#000, #000) center top / 100% 5px no-repeat,
+        url(../images/torn-edge-top.png) center 4px / 100% calc(100% - 4px) no-repeat;
+    mask:
+        linear-gradient(#000, #000) center top / 100% 5px no-repeat,
+        url(../images/torn-edge-top.png) center 4px / 100% calc(100% - 4px) no-repeat;
+    pointer-events: none;
+}
+
+.photo-band::before {
+    top: -2px;
+}
+
+.photo-band::after {
+    bottom: -2px;
+    -webkit-mask-image: linear-gradient(#000, #000), url(../images/torn-edge-bottom.png);
+    mask-image: linear-gradient(#000, #000), url(../images/torn-edge-bottom.png);
+    transform: scaleY(-1);
+}
+
+/* the first band (the main photo) is taller than the default, so more of the
+   photo shows above and below the couple */
+.photo-band--main {
+    --bh: clamp(340px, 52vw, 720px);
+    /* the crop ends at the couple's knees; this keeps that bottom in view */
+    --fy: 0.65;
+}
+
+/* phones load photo-band-portrait.jpg (a crop from just below the couple's
+   feet up); the band shows its whole height */
+@media (max-width: 767px) {
+    .photo-band--main {
+        --fy: 0.5;
+    }
+}
+
+/* second band, after the countdown: three photos side by side (images/trio-*.jpg,
+   made by source-images/make-photo-trio.py), each covering its third, divided by
+   strips of the card's paper torn on both sides (torn-strip-a/b.png, made by
+   source-images/make-torn-strips.py, used as masks like the top and bottom edges) */
+/* the band shrinks with the screen down to 200px (the single photo stops at 280px):
+   on narrow phones each third is only ~115px wide, and a taller band made the
+   photos look like thin vertical strips */
+.photo-band--trio {
+    --bh: clamp(200px, 40vw, 600px);
+}
+
+.photo-trio {
+    --tear-w: clamp(22px, 3vw, 38px);       /* width of each torn division */
+    position: absolute;
+    inset: 3px 0; /* 3px inside the band, like the first photo (no edge peeking past the tear) */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.photo-trio img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: var(--pos, 50% 50%);
+}
+
+.photo-trio::before,
+.photo-trio::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: -6px;
+    bottom: -6px;
+    left: calc(100% / 3);
+    width: var(--tear-w);
+    margin-left: calc(var(--tear-w) / -2);
+    background: var(--paper) var(--paper-img) 0 0 / 512px 512px repeat;
+    -webkit-mask: url(../images/torn-strip-a.png) center / 100% 100% no-repeat;
+    mask: url(../images/torn-strip-a.png) center / 100% 100% no-repeat;
+    pointer-events: none;
+}
+
+.photo-trio::after {
+    left: calc(200% / 3);
+    -webkit-mask-image: url(../images/torn-strip-b.png);
+    mask-image: url(../images/torn-strip-b.png);
+}
+
+/* ------------------------------------------------------------------
+ * Section dividers: from "El gran día" (#countdown, right after the
+ * parents) on, each section starts with a
+ * sand line on its top edge with a small formal touch at each end: a thin
+ * outlined diamond with a dot. The line is 2px and fades toward the ends.
+ * (A watercolor bouquet used to sit in the middle; it was removed at the
+ * couple's request.) The first sections (#couple, the photo band,
+ * #parents) have none: the photo already separates them.
+ * ------------------------------------------------------------------ */
+
+#countdown,
+#hotels,
+#dresscode,
+#gifts,
+#invitation,
+.floral-divider {
+    --div-w: min(860px, 82%);                    /* line length */
+    --div-ink: rgba(163, 149, 121, 0.55);        /* sand #a39579 */
+    position: relative;
+}
+
+/* the line, with a diamond at each end */
+#countdown::before,
+#hotels::before,
+#dresscode::before,
+#gifts::before,
+#invitation::before,
+.floral-divider::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    width: var(--div-w);
+    height: 14px;
+    transform: translateX(-50%);
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.5 L12.5 7 L7 12.5 L1.5 7 Z' fill='none' stroke='%23a39579' stroke-opacity='.7' stroke-width='1'/%3E%3Ccircle cx='7' cy='7' r='1.5' fill='%23a39579' fill-opacity='.7'/%3E%3C/svg%3E") left center / 14px 14px no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.5 L12.5 7 L7 12.5 L1.5 7 Z' fill='none' stroke='%23a39579' stroke-opacity='.7' stroke-width='1'/%3E%3Ccircle cx='7' cy='7' r='1.5' fill='%23a39579' fill-opacity='.7'/%3E%3C/svg%3E") right center / 14px 14px no-repeat,
+        linear-gradient(90deg,
+            transparent 0,
+            var(--div-ink) 8%,
+            var(--div-ink) 92%,
+            transparent 100%) center / calc(100% - 40px) 2px no-repeat;
+    pointer-events: none;
+}
+
+/* Phones: 15px more room on both sides of each divider (below the section
+   above it, above the section it opens) */
+@media (max-width: 575px) {
+    #countdown,
+    #hotels,
+    #dresscode,
+    #gifts,
+    #invitation {
+        --div-w: 92%;
+        padding-top: calc(var(--section-pad) + 15px);
+    }
+
+    #parents,
+    #events,
+    #hotels,
+    #dresscode,
+    #gifts {
+        padding-bottom: calc(var(--section-pad) + 15px);
+    }
+}
+
+/* the same divider as an element inside a section (<div class="floral-divider">),
+   the line sits in its own box instead of on a section's top edge (not used
+   on the page right now) */
+.floral-divider {
+    --div-w: min(620px, 86%);
+    height: 14px;
+    margin: 14px auto 20px;
+}
+
+.floral-divider::before {
+    top: 0;
+}
+
+@media (max-width: 575px) {
+    .floral-divider {
+        --div-w: 96%;
+        margin: 15px auto;
+    }
+}
+
+/* RSVP box on the paper card: a lighter sheet with a sand hairline, like the
+   gift cards, instead of the template's solid white */
+.lp-page #invitation .form-wrapper {
+    border: 1px solid rgba(214, 207, 189, 0.7);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 6px 18px rgba(62, 111, 163, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ------------------------------------------------------------------
+ * Tighter spacing on index.html: the template's 7em (112px) section
+ * padding and 4em heading gap left too much empty paper between blocks.
+ * --section-pad is the space at the top and bottom of every section
+ * (the photo band gets the same from its neighbors); id rules elsewhere
+ * still win where a section needs more (the first section's room for the
+ * corner flowers, the RSVP's room for the bottom flowers).
+ * ------------------------------------------------------------------ */
+.lp-page .page-card {
+    --section-pad: 56px;
+}
+
+.lp-page .page-card > .section {
+    padding-top: var(--section-pad);
+    padding-bottom: var(--section-pad);
+}
+
+.lp-page #couple {
+    padding-top: 56px;
+    padding-bottom: 40px; /* the invite line moved 16px lower; the photo stays put */
+}
+
+.lp-page .page-card .heading {
+    margin-bottom: 32px;
+}
+
+@media (max-width: 575px) {
+    .lp-page .page-card {
+        --section-pad: 32px;
+    }
+
+    .lp-page .page-card .heading {
+        margin-bottom: 22px;
+    }
+
+    /* phones: "¡Nos casamos!" sits a little below halfway between the top of
+       the card and the names; the invite line sits 32px under the names with
+       about 44px of paper down to the photo (28px of padding plus the torn
+       edge's paper) */
+    .lp-page #couple {
+        padding-top: 48px;
+        padding-bottom: 28px;
+    }
+}
+
+.lp-page #countdown .heading {
+    margin-bottom: 0;
+}
+
+/* the countdown ends right above the second photo band, and the itinerary
+   starts close below it */
+.lp-page #countdown .timer .timer-item > div {
+    height: auto;
+}
+
+.lp-page #countdown {
+    padding-bottom: 36px;
+}
+
+.lp-page #events {
+    padding-top: 14px;
+}
+
+@media (max-width: 575px) {
+    .lp-page #countdown {
+        padding-bottom: 24px;
+    }
+
+    .lp-page #events {
+        padding-top: 10px;
+    }
+}
+
+/* the countdown's side phrases were removed, so the digits sit centered */
+#countdown .timer {
+    justify-content: center;
+}
+
+/* a kicker placed under its title instead of above ("Itinerario" / "Nuestro día") */
+.lp-page .heading .heading-sub {
+    display: block;
+    margin-top: -4px;
+}
+
+/* WhatsApp RSVP button: the gift buttons' pill in its hover state (sand
+   hairline, soft sand fill, light shadow), a bit larger since it is the main
+   call to action, with the WhatsApp icon in the darker sand */
+.lp-page .rsvp-whatsapp__button.btn {
+    gap: 10px;
+    padding: 12px 28px 12px 26px;
+    border: 1px solid #a39579;
+    border-radius: 999px;
+    background: rgba(214, 207, 189, 0.35);
+    box-shadow: 0 3px 10px rgba(120, 95, 60, 0.12);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #5e533f;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.lp-page .rsvp-whatsapp__button.btn > i {
+    font-size: 17px;
+    color: #a39579;
+}
+
+.lp-page .rsvp-whatsapp__button.btn:hover,
+.lp-page .rsvp-whatsapp__button.btn:focus-visible,
+.lp-page .rsvp-whatsapp__button.btn:active {
+    border-color: #8f8063;
+    background: rgba(214, 207, 189, 0.55);
+    box-shadow: 0 5px 14px rgba(120, 95, 60, 0.18);
+    color: #4d4433;
+    transform: translateY(-1px);
+}
+
+/* ------------------------------------------------------------------
+ * Hotels (#hotels, between the itinerary and the dress code): the SAFI
+ * hotels' wedding agreement, from the rate letter in source-images/hotels/
+ * (rates left out on purpose). Two cards like the gift cards, with the
+ * hotel's photo on top, then the agreement code set large in the
+ * names' serif, the reservations phones and the deadline.
+ * ------------------------------------------------------------------ */
+#hotels .hotels-intro {
+    max-width: 560px;
+    margin: 14px auto 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    font-style: italic;
+    line-height: 1.45;
+    color: #333;
+    text-wrap: balance;
+}
+
+.hotel-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(214, 207, 189, 0.7);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 6px 18px rgba(62, 111, 163, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.hotel-card__photo {
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: 220px;
+    object-fit: cover;
+    object-position: center 88%; /* both photos have the entrance near the bottom */
+}
+
+.hotel-card__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 22px 22px 24px;
+}
+
+.hotel-card__tag {
+    margin-bottom: 4px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #a39579;
+}
+
+.hotel-card__name {
+    margin: 0 0 8px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #333;
+}
+
+.hotel-card__address {
+    margin: 0 0 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #777;
+}
+
+.hotel-card .gift-btn {
+    margin-top: auto;
+}
+
+.hotel-booking {
+    max-width: 520px;
+    margin: 36px auto 0;
+    text-align: center;
+}
+
+.hotel-booking p {
+    margin: 0;
+}
+
+.hotel-booking__label {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #a39579;
+}
+
+/* the code, large in the names' serif capitals */
+.hotel-booking__code {
+    padding-left: 0.18em; /* letter-spacing pad keeps it centered */
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: 0.18em;
+    font-variant-numeric: lining-nums;
+    color: #555;
+}
+
+.hotel-booking__spell {
+    margin-bottom: 16px !important;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: #8a7b5f;
+}
+
+.hotel-booking__how {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-style: italic;
+    color: #333;
+}
+
+.hotel-booking__phones {
+    margin-top: 6px !important;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-variant-numeric: lining-nums;
+    letter-spacing: 0.06em;
+    color: #555;
+}
+
+.hotel-booking__phones a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(163, 149, 121, 0.5);
+}
+
+.hotel-booking__phones span {
+    margin: 0 10px;
+    color: #a39579;
+}
+
+.hotel-booking__note {
+    margin-top: 12px !important;
+    font-size: 12px;
+    color: #777;
+}
+
+@media (max-width: 575px) {
+    #hotels .hotels-intro {
+        font-size: 19px;
+    }
+
+    .hotel-card__photo {
+        height: 190px;
+    }
+
+    .hotel-card__name {
+        font-size: 23px;
+    }
+
+    .hotel-booking {
+        margin-top: 28px;
+    }
+
+    .hotel-booking__code {
+        font-size: 44px;
+    }
+
+    .hotel-booking__how {
+        font-size: 17px;
+    }
+
+    .hotel-booking__phones {
+        font-size: 20px;
+    }
+}
+
+/* ------------------------------------------------------------------
+ * Scroll reveal: scrollReveal() in main.js adds .reveal to the page
+ * card's items and .is-revealed as each one enters the screen; it
+ * fades in rising 60px from a slight blur. Uses `translate`, not `transform`, so tilted
+ * polaroids keep their tilt. Both classes are removed when it ends.
+ * ------------------------------------------------------------------ */
+.reveal {
+    opacity: 0;
+}
+
+.reveal.is-revealed {
+    animation: reveal-up 1.3s cubic-bezier(0.22, 0.7, 0.25, 1) both;
+}
+
+@keyframes reveal-up {
+    from {
+        opacity: 0;
+        translate: 0 60px;
+        filter: blur(6px);
+    }
+
+    to {
+        opacity: 1;
+        translate: 0 0;
+        filter: blur(0);
+    }
+}
+
+/* RSVP WhatsApp box: the question in Cormorant Garamond like the card
+   titles, and the line under it in the italic subtitle style (shared with
+   .gift-intro above) */
+#invitation .rsvp-whatsapp .invitation_heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.25;
+    color: #333;
+}
+
+#invitation .rsvp-whatsapp__text {
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 575px) {
+    #invitation .rsvp-whatsapp .invitation_heading {
+        font-size: 23px;
+    }
+}

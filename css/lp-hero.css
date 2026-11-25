@@ -571,6 +571,19 @@ a.lp__nav-item {
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
+/* line-art SVG icon (the gift box shared with the Amazon card), sized and
+   shadowed like the Material glyphs */
+.lp__nav-svg {
+    width: 25px;
+    height: 25px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+}
+
 /* phones: smaller icons */
 @media (max-width: 767px) {
     .lp__nav {
@@ -579,6 +592,11 @@ a.lp__nav-item {
 
     .lp__nav .material-symbols-rounded {
         font-size: 20px;
+    }
+
+    .lp__nav-svg {
+        width: 20px;
+        height: 20px;
     }
 }
 
@@ -1503,7 +1521,9 @@ a.lp__nav-item:focus-visible .lp__nav-label {
  * buttons line up across the row. Stacked on phones.
  * ------------------------------------------------------------------ */
 
-#gifts .gift-intro {
+#gifts .gift-intro,
+#invitation .rsvp-intro,
+#invitation .rsvp-whatsapp__text {
     max-width: 560px;
     margin-left: auto;
     margin-right: auto;
@@ -1610,6 +1630,36 @@ a.lp__nav-item:focus-visible .lp__nav-label {
     white-space: nowrap;
 }
 
+/* Compact cards (Amazon and bank transfer): same narrower column for both,
+   stretched to the same height, with a smaller icon, title, rows and
+   padding */
+.gift-card--compact {
+    padding: 24px 20px 22px;
+}
+
+.gift-card--compact .gift-card__icon {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 10px;
+}
+
+.gift-card--compact .gift-card__title {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.gift-card--compact .gift-card__row {
+    padding: 5px 0;
+}
+
+.gift-card--compact .gift-card__details dd {
+    font-size: 17px;
+}
+
+.gift-card--compact .gift-card__action {
+    padding-top: 12px;
+}
+
 /* the button sits at the bottom of the card */
 .gift-card__action {
     margin-top: auto;
@@ -1701,11 +1751,19 @@ button.btn-sand {
 
 @media (max-width: 575px) {
     #gifts .gift-intro {
+        margin-bottom: 0;
         font-size: 19px;
     }
 
+    #invitation .rsvp-intro,
+    #invitation .rsvp-whatsapp__text {
+        font-size: 19px;
+    }
+
+    /* pull the cards up closer to the intro text */
     .gift-list {
         --bs-gutter-y: 18px;
+        margin-top: -12px;
     }
 
     .gift-card {
@@ -2058,12 +2116,23 @@ button.btn-sand {
         padding: 0 6px;
     }
 
+    /* phones: two side by side, then the third centered on its own line,
+       tucked slightly under the pair */
+    .polaroid-row {
+        flex-wrap: wrap;
+    }
+
     .polaroid-row .polaroid {
-        margin: 0 -8px;
+        flex: 0 0 52%;
+        margin: 0 -2%;
     }
 
     .polaroid--2 {
-        margin-top: -8px !important;
+        margin-top: 8px !important;
+    }
+
+    .polaroid-row .polaroid--3 {
+        margin-top: -10px;
     }
 }
 
@@ -2459,6 +2528,7 @@ button.btn-sand {
     max-width: none;
     height: 220px;
     object-fit: cover;
+    object-position: center 88%; /* both photos have the entrance near the bottom */
 }
 
 .hotel-card__body {
@@ -2603,7 +2673,7 @@ button.btn-sand {
 /* ------------------------------------------------------------------
  * Scroll reveal: scrollReveal() in main.js adds .reveal to the page
  * card's items and .is-revealed as each one enters the screen; it
- * fades in rising 28px. Uses `translate`, not `transform`, so tilted
+ * fades in rising 60px from a slight blur. Uses `translate`, not `transform`, so tilted
  * polaroids keep their tilt. Both classes are removed when it ends.
  * ------------------------------------------------------------------ */
 .reveal {
@@ -2611,17 +2681,96 @@ button.btn-sand {
 }
 
 .reveal.is-revealed {
-    animation: reveal-up 0.9s cubic-bezier(0.22, 0.7, 0.25, 1) both;
+    animation: reveal-up 1.3s cubic-bezier(0.22, 0.7, 0.25, 1) both;
 }
 
 @keyframes reveal-up {
     from {
         opacity: 0;
-        translate: 0 28px;
+        translate: 0 60px;
+        filter: blur(6px);
     }
 
     to {
         opacity: 1;
         translate: 0 0;
+        filter: blur(0);
+    }
+}
+
+/* RSVP WhatsApp box: the question in Cormorant Garamond like the card
+   titles, and the line under it in the italic subtitle style (shared with
+   .gift-intro above) */
+#invitation .rsvp-whatsapp .invitation_heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.25;
+    color: #333;
+}
+
+#invitation .rsvp-whatsapp__text {
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 575px) {
+    #invitation .rsvp-whatsapp .invitation_heading {
+        font-size: 23px;
+    }
+}
+
+/* Closing line under the RSVP polaroids: "¡Te esperamos!" in the script
+   font, signed with the couple's names and date in small spaced capitals */
+.rsvp-closing {
+    margin-top: 72px;
+    text-align: center;
+}
+
+/* the closing line ends the page: less empty space under it than the
+   usual room for the flowers (on desktop the centered text clears the
+   bottom-right flowers) */
+#invitation.section {
+    padding-bottom: 120px;
+}
+
+.rsvp-closing__title {
+    margin: 0;
+    font-family: 'Great Vibes', cursive;
+    font-size: 52px;
+    line-height: 1.1;
+    color: #333;
+}
+
+.rsvp-closing__sign {
+    margin: 10px 0 0;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #a39579; /* darker sand */
+}
+
+@media (max-width: 575px) {
+    .rsvp-closing {
+        margin-top: 56px;
+    }
+
+    /* the closing text spans the card on phones: smaller bottom-right
+       flowers and just enough room under the text for them */
+    #invitation.section {
+        padding-bottom: 104px;
+    }
+
+    .card-floral--br {
+        width: 130px;
+    }
+
+    .rsvp-closing__title {
+        font-size: 44px;
+    }
+
+    .rsvp-closing__sign {
+        font-size: 11px;
     }
 }

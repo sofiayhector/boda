@@ -20,7 +20,7 @@
 
         <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Great+Vibes&family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;700;900&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400;1,700&display=swap" rel="stylesheet">
 
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24..48,200..400,0,0&icon_names=bedtime,checkroom,church,door_open,event,history_edu,location_on,mail,redeem&display=block" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24..48,200..400,0,0&icon_names=bedtime,checkroom,church,door_open,event,history_edu,hotel,location_on,mail,redeem&display=block" rel="stylesheet">
 
         <link rel="stylesheet" type="text/css" href="css/vendor/lightbox.min.css">
 
@@ -81,24 +81,36 @@
 
                         <div class="lp__shine" aria-hidden="true"></div>
 
-                        <!-- section icons, in page order from the top of the ring (246deg) down to 168deg, 26deg apart -->
+                        <!-- section icons, in page order from the top of the ring (254deg) down to 166deg, 22deg apart -->
                         <nav class="lp__nav" id="lp-nav" aria-label="Menú principal">
-                            <a class="lp__nav-item" href="#events" style="--a: 246deg">
+                            <a class="lp__nav-item" href="#events" style="--a: 254deg">
                                 <span class="material-symbols-rounded" aria-hidden="true">event</span>
                                 <span class="lp__nav-label">Itinerario</span>
                             </a>
 
-                            <a class="lp__nav-item" href="#dresscode" style="--a: 220deg">
+                            <a class="lp__nav-item" href="#hotels" style="--a: 232deg">
+                                <span class="material-symbols-rounded" aria-hidden="true">hotel</span>
+                                <span class="lp__nav-label">Hospedaje</span>
+                            </a>
+
+                            <a class="lp__nav-item" href="#dresscode" style="--a: 210deg">
                                 <span class="material-symbols-rounded" aria-hidden="true">checkroom</span>
                                 <span class="lp__nav-label">Vestimenta</span>
                             </a>
 
-                            <a class="lp__nav-item" href="#gifts" style="--a: 194deg">
-                                <span class="material-symbols-rounded" aria-hidden="true">redeem</span>
+                            <a class="lp__nav-item" href="#gifts" style="--a: 188deg">
+                                <!-- same gift box line icon as the Amazon card in #gifts -->
+                                <svg class="lp__nav-svg" viewBox="0 0 48 48" aria-hidden="true">
+                                    <rect x="8" y="17" width="32" height="7" rx="1"/>
+                                    <path d="M11 24 V41 H37 V24"/>
+                                    <path d="M24 17 V41"/>
+                                    <path d="M24 17 C20 10 13 11 15.5 15 C17 18 22 17.5 24 17 Z"/>
+                                    <path d="M24 17 C28 10 35 11 32.5 15 C31 18 26 17.5 24 17 Z"/>
+                                </svg>
                                 <span class="lp__nav-label">Regalos</span>
                             </a>
 
-                            <a class="lp__nav-item" href="#invitation" style="--a: 168deg">
+                            <a class="lp__nav-item" href="#invitation" style="--a: 166deg">
                                 <span class="material-symbols-rounded" aria-hidden="true">mail</span>
                                 <span class="lp__nav-label">Asistencia</span>
                             </a>
@@ -420,7 +432,7 @@
                         <div class="row g-4 justify-content-center hotel-list">
                             <div class="col-12 col-md-6 col-lg-5">
                                 <article class="hotel-card">
-                                    <img class="hotel-card__photo" src="images/hotel-safi-metropolitan.jpg" alt="Torres de Hotel SAFI Metropolitan en Valle Oriente" width="435" height="345" loading="lazy" decoding="async">
+                                    <img class="hotel-card__photo" src="images/hotel-safi-metropolitan.jpg" alt="Torres de Hotel SAFI Metropolitan con la sierra al fondo" width="738" height="1200" loading="lazy" decoding="async">
 
                                     <div class="hotel-card__body">
                                         <span class="hotel-card__tag">Donde celebraremos</span>
@@ -437,7 +449,7 @@
 
                             <div class="col-12 col-md-6 col-lg-5">
                                 <article class="hotel-card">
-                                    <img class="hotel-card__photo" src="images/hotel-safi-valle.jpg" alt="Fachada de Hotel SAFI Valle" width="424" height="348" loading="lazy" decoding="async">
+                                    <img class="hotel-card__photo" src="images/hotel-safi-valle.jpg" alt="Fachada de Hotel SAFI Valle frente a sus torres" width="510" height="640" loading="lazy" decoding="async">
 
                                     <div class="hotel-card__body">
                                         <span class="hotel-card__tag">Conectado con el Metropolitan</span>
@@ -535,7 +547,7 @@
 
                         <!-- colors to avoid, for both: crossed-out chips -->
                         <div class="dress-avoid-block">
-                            <p class="dress-col__avoid">Les pedimos a hombres y mujeres evitar usar traje o vestido de los siguientes colores:</p>
+                            <p class="dress-col__avoid">Te pedimos evitar usar traje o vestido de los siguientes colores:</p>
 
                             <ul class="dress-avoid" aria-label="Colores a evitar: blanco, marfil y crema">
                                 <li class="dress-avoid__item">
@@ -577,7 +589,7 @@
                                 <path d="M8.8 8.8 L39.2 39.2"/>
                             </svg>
 
-                            <p class="dress-kids__text">Queremos mucho a sus pequeños; sin embargo, esta noche está reservada <strong class="dress-kids__adults">solo para adultos</strong>. Agradecemos tu comprensión.</p>
+                            <p class="dress-kids__text">Queremos mucho a tus pequeños; sin embargo, esta noche está reservada <strong class="dress-kids__adults">solo para adultos</strong>. Agradecemos tu comprensión.</p>
                         </div>
                     </div>
                 </section>
@@ -592,14 +604,14 @@
 
                                 <h2>Regalos</h2>
 
-                                <p class="gift-intro">Tu presencia es el regalo más bonito que podemos recibir. Si además deseas tener un detalle con nosotros, aquí te compartimos algunas opciones.</p>
+                                <p class="gift-intro">Tu presencia es el regalo más bonito que podemos recibir. Si además quieres regalarnos algo, aquí te dejamos un par de opciones para ser parte de esta nueva etapa que comenzamos juntos.</p>
                             </div>
                         </div>
 
                         <!-- Two option cards: Amazon and a bank transfer (styles in lp-hero.css) -->
                         <div class="row g-4 justify-content-center gift-list">
-                            <div class="col-12 col-md-6 col-lg-4">
-                                <article class="gift-card">
+                            <div class="col-10 col-sm-8 col-md-5 col-lg-4">
+                                <article class="gift-card gift-card--compact">
                                     <!-- Gift box: line icon (lid, box, ribbon and bow) -->
                                     <svg class="gift-card__icon" viewBox="0 0 48 48" aria-hidden="true">
                                         <rect x="8" y="17" width="32" height="7" rx="1"/>
@@ -621,8 +633,8 @@
                                 </article>
                             </div>
 
-                            <div class="col-12 col-md-6 col-lg-4">
-                                <article class="gift-card">
+                            <div class="col-10 col-sm-8 col-md-5 col-lg-4">
+                                <article class="gift-card gift-card--compact">
                                     <!-- Bank: line icon (pediment, columns and steps) -->
                                     <svg class="gift-card__icon" viewBox="0 0 48 48" aria-hidden="true">
                                         <path d="M7 17 L24 7 L41 17 Z"/>
@@ -632,22 +644,20 @@
                                         <path d="M9 37.5 H39 M7 41 H41"/>
                                     </svg>
 
-                                    <span class="gift-card__store">Transferencia</span>
                                     <h3 class="gift-card__title">Transferencia bancaria</h3>
 
-                                    <!-- TODO: real bank, account holder and 18-digit CLABE -->
                                     <dl class="gift-card__details">
                                         <div class="gift-card__row">
                                             <dt>Banco</dt>
-                                            <dd>—</dd>
+                                            <dd>BBVA</dd>
                                         </div>
                                         <div class="gift-card__row">
                                             <dt>Titular</dt>
-                                            <dd>Sofía —</dd>
+                                            <dd>Sofía Herrera Diliz</dd>
                                         </div>
                                         <div class="gift-card__row">
                                             <dt>CLABE</dt>
-                                            <dd class="gift-card__clabe" id="gift-clabe">000 000 0000 0000 0000</dd>
+                                            <dd class="gift-card__clabe" id="gift-clabe">0125 8001 5546 022045</dd>
                                         </div>
                                     </dl>
 
@@ -673,7 +683,7 @@
                             <div class="col-12 text-center heading">
                                 <h2>Confirma tu asistencia</h2>
 
-                                <p>Tu compañía hará este día aún más especial. Por favor, confírmanos si podrás acompañarnos.</p>
+                                <p class="rsvp-intro">Tu compañía hará este día aún más especial. Por favor, confírmanos si podrás acompañarnos.</p>
                             </div>
                         </div>
 
@@ -685,7 +695,7 @@
                                     <div class="rsvp-whatsapp text-center">
                                         <h3 class="invitation_heading">¿Nos acompañarás en nuestra boda?</h3>
 
-                                        <p class="mb-4">Avísanos por WhatsApp, solo toma un segundo.</p>
+                                        <p class="rsvp-whatsapp__text">Avísanos por WhatsApp, solo toma un segundo.</p>
 
                                         <a class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2 rsvp-whatsapp__button" href="https://wa.me/" target="_blank" rel="noopener"
                                            data-phone="52XXXXXXXXXX"
@@ -717,6 +727,12 @@
                                     <img class="polaroid__photo" src="images/polaroid-3.jpg" alt="Sofía y Héctor abrazados en el balcón" width="900" height="900" loading="lazy" decoding="async">
                                 </div>
                             </figure>
+                        </div>
+
+                        <!-- Closing line under the polaroids -->
+                        <div class="rsvp-closing">
+                            <p class="rsvp-closing__title">¡Te esperamos!</p>
+                            <p class="rsvp-closing__sign">Sofía &amp; Héctor · 27.02.2027</p>
                         </div>
                     </div>
                 </section>

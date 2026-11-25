@@ -269,11 +269,11 @@
                 });
             shown.forEach(function (el, i) {
                 io.unobserve(el);
-                el.style.animationDelay = Math.min(i * 0.12, 0.6) + 's';
+                el.style.animationDelay = Math.min(i * 0.2, 0.8) + 's';
                 el.addEventListener('animationend', done);
                 el.classList.add('is-revealed');
             });
-        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
 
         items.forEach(function (el) {
             el.classList.add('reveal');
