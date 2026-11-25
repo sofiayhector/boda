@@ -81,14 +81,22 @@ html.lp-locked body {
    shapes that must cover what is behind them (icon fills, timeline nodes). */
 .page-card {
     --card-gap: clamp(8px, 2.5vw, 32px);
-    --paper: #fafafa;
-    --paper-img: url(../images/paper-card.jpg);
+    --paper: #f5f4ef; /* the tile's average color under the white wash */
+    --paper-img: url(../images/paper-floral.jpg);
+    --paper-wash: rgba(255, 255, 255, 0.45); /* lightens the cream tile toward white */
     position: relative;
     z-index: 1;
     margin: 0 var(--card-gap) var(--card-gap);
     overflow: hidden;
     border-radius: 28px;
-    background: var(--paper) var(--paper-img) 0 0 / 512px 512px repeat;
+    /* embossed calla-lily paper (images/paper-floral.jpg): the couple's photo
+       mirrored left/right and top/bottom into a 2x2 tile so it repeats with no
+       seams; 1680px shown at 840px for sharp retina screens. A white wash
+       on top makes it whiter */
+    background:
+        linear-gradient(var(--paper-wash), var(--paper-wash)),
+        var(--paper-img) 0 0 / 840px auto repeat,
+        var(--paper);
     box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.3),
         0 4px 8px 3px rgba(0, 0, 0, 0.15);
@@ -1280,34 +1288,6 @@ a.lp__nav-item:focus-visible .lp__nav-label {
     color: #333;
 }
 
-/* ------------------------------------------------------------------
- * Floral corners on the page card (images/floral-corner-tl.webp and
- * -br.webp, cut from the couple's reference by
- * source-images/make-floral-corners.py): blue hydrangeas, white flowers
- * and eucalyptus in the card's top-left corner (over the first section)
- * and bottom-right corner (over the end of the RSVP section). They are
- * inside .page-card, so its rounded corners and overflow: hidden trim them.
- * ------------------------------------------------------------------ */
-
-.card-floral {
-    position: absolute;
-    z-index: 2;
-    width: clamp(170px, 24vw, 340px);
-    max-width: none;
-    height: auto;
-    pointer-events: none;
-}
-
-.card-floral--tl {
-    top: 0;
-    left: 0;
-}
-
-.card-floral--br {
-    right: 0;
-    bottom: 0;
-}
-
 /* room for the bottom-right flowers below the RSVP content, and space under
    the card at the end of the page so the docked record (bottom-right corner
    of the screen) rests below the card instead of covering the flowers */
@@ -1322,10 +1302,6 @@ a.lp__nav-item:focus-visible .lp__nav-label {
 /* Phones: compact first section (smaller corner flowers and title) and a
    compact parents section (smaller drawing and names, tighter gaps) */
 @media (max-width: 575px) {
-    .card-floral--tl {
-        width: 140px;
-    }
-
     /* room under the top-left flowers for the first section's title */
     #couple {
         padding-top: 118px;
@@ -1547,7 +1523,7 @@ a.lp__nav-item:focus-visible .lp__nav-label {
     padding: 34px 26px 28px;
     border: 1px solid rgba(214, 207, 189, 0.7); /* sand #d6cfbd */
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.45); /* a lighter sheet on the card paper */
+    background: rgba(255, 255, 255, 0.85); /* a lighter sheet on the card paper */
     box-shadow: 0 6px 18px rgba(62, 111, 163, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
     text-align: center;
     transition: box-shadow 0.25s ease, transform 0.25s ease;
@@ -2190,7 +2166,7 @@ button.btn-sand {
     /* the card's paper, cut to the torn shape: the PNG (white with alpha) is a
        mask, plus a solid 4px rim on the outer side, because scaling the PNG
        leaves its outer row slightly transparent (a faint photo line showed) */
-    background: var(--paper) var(--paper-img) 0 0 / 512px 512px repeat;
+    background: var(--lp-grain), var(--paper); /* plain paper: the embossed pattern would not line up */
     -webkit-mask:
         linear-gradient(#000, #000) center top / 100% 5px no-repeat,
         url(../images/torn-edge-top.png) center 4px / 100% calc(100% - 4px) no-repeat;
@@ -2265,7 +2241,7 @@ button.btn-sand {
     left: calc(100% / 3);
     width: var(--tear-w);
     margin-left: calc(var(--tear-w) / -2);
-    background: var(--paper) var(--paper-img) 0 0 / 512px 512px repeat;
+    background: var(--lp-grain), var(--paper); /* plain paper: the embossed pattern would not line up */
     -webkit-mask: url(../images/torn-strip-a.png) center / 100% 100% no-repeat;
     mask: url(../images/torn-strip-a.png) center / 100% 100% no-repeat;
     pointer-events: none;
@@ -2369,7 +2345,7 @@ button.btn-sand {
 .lp-page #invitation .form-wrapper {
     border: 1px solid rgba(214, 207, 189, 0.7);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.85);
     box-shadow: 0 6px 18px rgba(62, 111, 163, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -2517,7 +2493,7 @@ button.btn-sand {
     overflow: hidden;
     border: 1px solid rgba(214, 207, 189, 0.7);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.85);
     box-shadow: 0 6px 18px rgba(62, 111, 163, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
     text-align: center;
 }
@@ -2720,17 +2696,16 @@ button.btn-sand {
 }
 
 /* Closing line under the RSVP polaroids: "¡Te esperamos!" in the script
-   font, signed with the couple's names and date in small spaced capitals */
+   font, signed with the couple's monogram in coffee brown */
 .rsvp-closing {
     margin-top: 72px;
     text-align: center;
 }
 
 /* the closing line ends the page: less empty space under it than the
-   usual room for the flowers (on desktop the centered text clears the
-   bottom-right flowers) */
+   old room for the corner flowers */
 #invitation.section {
-    padding-bottom: 120px;
+    padding-bottom: 72px;
 }
 
 .rsvp-closing__title {
@@ -2741,14 +2716,18 @@ button.btn-sand {
     color: #333;
 }
 
-.rsvp-closing__sign {
-    margin: 10px 0 0;
-    font-family: 'Open Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #a39579; /* darker sand */
+/* the couple's S & H monogram (the white images/monogram-sh.png used as
+   a mask) filled in a warm coffee brown. A mask instead of a CSS filter:
+   iOS WebKit renders filtered elements low-res. */
+.rsvp-closing__logo {
+    display: block;
+    width: 70px;
+    aspect-ratio: 1000 / 989;
+    margin: 28px auto 0;
+    background-color: #8a6a4b; /* coffee brown */
+    opacity: 0.6;
+    -webkit-mask: url('../images/monogram-sh.png') center / contain no-repeat;
+    mask: url('../images/monogram-sh.png') center / contain no-repeat;
 }
 
 @media (max-width: 575px) {
@@ -2756,21 +2735,16 @@ button.btn-sand {
         margin-top: 56px;
     }
 
-    /* the closing text spans the card on phones: smaller bottom-right
-       flowers and just enough room under the text for them */
     #invitation.section {
-        padding-bottom: 104px;
-    }
-
-    .card-floral--br {
-        width: 130px;
+        padding-bottom: 30px;
     }
 
     .rsvp-closing__title {
         font-size: 44px;
     }
 
-    .rsvp-closing__sign {
-        font-size: 11px;
+    .rsvp-closing__logo {
+        width: 60px;
+        margin-top: 44px;
     }
 }
