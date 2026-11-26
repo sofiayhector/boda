@@ -2754,3 +2754,87 @@ button.btn-sand {
 .lp-hero:not(.is-open) {
     cursor: pointer;
 }
+
+/* Music toggle on the docked record's label (bgMusic() in main.js): a cream
+   button with a dark speaker icon, so it stands out on the black record.
+   While the song is silent (.is-off) it pulses softly to invite a tap. While
+   paused (.is-silent) the record stops spinning and the arm lifts off it. */
+.lp__sound {
+    display: none;
+}
+
+.lp__vinyl.is-docked .lp__sound {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid rgba(163, 149, 121, 0.7);
+    border-radius: 50%;
+    background: #f5efe3;
+    color: #5e533f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translate(-50%, -50%);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.lp__vinyl.is-docked .lp__sound:hover {
+    background: #fff;
+    transform: translate(-50%, -50%) scale(1.06);
+}
+
+.lp__sound .material-symbols-rounded {
+    font-size: 22px;
+    text-shadow: none;
+}
+
+.lp__sound:focus-visible {
+    outline: 2px solid var(--lp-kraft);
+    outline-offset: 2px;
+}
+
+.lp__vinyl.is-docked .lp__sound.is-off {
+    animation: lp-sound-pulse 2s ease-out infinite;
+}
+
+@keyframes lp-sound-pulse {
+    0% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45), 0 0 0 0 rgba(245, 239, 227, 0.7);
+    }
+
+    100% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45), 0 0 0 12px rgba(245, 239, 227, 0);
+    }
+}
+
+@media (max-width: 767px) {
+    .lp__vinyl.is-docked .lp__sound {
+        width: 34px;
+        height: 34px;
+    }
+
+    .lp__sound .material-symbols-rounded {
+        font-size: 19px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lp__vinyl.is-docked .lp__sound.is-off {
+        animation: none;
+    }
+}
+
+.lp__vinyl.is-docked.is-silent .lp__disc {
+    animation-play-state: paused;
+}
+
+.lp__vinyl.is-docked.is-silent .lp__arm-swing {
+    transform: rotate(-14deg);
+}

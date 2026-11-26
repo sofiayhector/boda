@@ -85,6 +85,167 @@
         }
     });
 
+    /* Background song (index only): #bg-music, at the volume in its
+     * data-volume (0 to 1). The tap that opens the record unlocks sound
+     * (browsers block it before a tap); the song starts, fading in, once the
+     * record has docked in the corner and the arm has landed on it. If the
+     * page opened without a tap (a #section link), it starts on the first tap
+     * or key press. The button on the docked record pauses / resumes; while
+     * silent the record stops spinning and the arm lifts. It pauses while the
+     * tab is hidden and resumes on return unless the guest paused it. Volume
+     * goes through Web Audio where available, because iOS ignores
+     * audio.volume. */
+    var bgMusic = (function () {
+        var music = document.getElementById('bg-music');
+        if (!music) {
+            return { unlock: function () {}, start: function () {} };
+        }
+        var target = parseFloat(music.getAttribute('data-volume'));
+        target = isNaN(target) ? 1 : Math.min(1, Math.max(0, target));
+        var FADE = 2.5; // seconds
+        var unlocked = false;
+        var userPaused = false;
+        var hiddenWhilePlaying = false;
+        var ctx = null;
+        var gain = null;
+        var fade = null;
+
+        var play = function () {
+            var p = music.play();
+            if (p && p.catch) {
+                p.catch(function () {});
+            }
+            return p;
+        };
+
+        // call inside a tap: sets up the volume control and primes the element
+        // (play muted and pause right away) so a later play() is allowed
+        var unlock = function () {
+            if (unlocked) {
+                return;
+            }
+            unlocked = true;
+            var AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) {
+                try {
+                    ctx = new AC();
+                    gain = ctx.createGain();
+                    gain.gain.value = 0;
+                    ctx.createMediaElementSource(music).connect(gain);
+                    gain.connect(ctx.destination);
+                    ctx.resume();
+                } catch (e) {
+                    ctx = gain = null;
+                }
+            }
+            music.muted = true;
+            var p = play();
+            var reset = function () {
+                if (!music.dataset.started) {
+                    music.pause();
+                    music.currentTime = 0;
+                }
+                music.muted = false;
+            };
+            if (p && p.then) {
+                p.then(reset, reset);
+            } else {
+                reset();
+            }
+        };
+
+        var fadeIn = function () {
+            clearInterval(fade);
+            if (gain) {
+                var now = ctx.currentTime;
+                gain.gain.cancelScheduledValues(now);
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(target, now + FADE);
+                return;
+            }
+            music.volume = 0;
+            fade = setInterval(function () {
+                music.volume = Math.min(target, music.volume + target / (FADE * 10));
+                if (music.volume >= target) {
+                    clearInterval(fade);
+                }
+            }, 100);
+        };
+
+        var start = function () {
+            if (userPaused || (!music.paused && !music.muted)) {
+                return;
+            }
+            music.dataset.started = '1';
+            music.muted = false;
+            if (ctx && ctx.state === 'suspended') {
+                ctx.resume();
+            }
+            fadeIn();
+            play();
+        };
+
+        // opened without a tap: unlock and start on the first one
+        var firstTap = function () {
+            if (document.documentElement.classList.contains('lp-locked') || music.dataset.started) {
+                return;
+            }
+            unlock();
+            start();
+        };
+        ['pointerdown', 'keydown', 'touchend'].forEach(function (type) {
+            document.addEventListener(type, firstTap, { passive: true });
+        });
+
+        var update = function () {
+            var silent = music.paused || music.muted;
+            var vinyl = document.querySelector('.lp__vinyl');
+            var button = document.querySelector('.lp__sound');
+            if (vinyl) {
+                vinyl.classList.toggle('is-silent', silent);
+            }
+            if (button) {
+                button.classList.toggle('is-off', silent);
+                button.setAttribute('aria-label', silent ? 'Reproducir música' : 'Pausar música');
+                button.querySelector('.material-symbols-rounded').textContent = silent ? 'volume_off' : 'volume_up';
+            }
+        };
+        ['play', 'pause', 'volumechange'].forEach(function (type) {
+            music.addEventListener(type, update);
+        });
+        update();
+
+        var button = document.querySelector('.lp__sound');
+        if (button) {
+            button.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (music.paused) {
+                    userPaused = false;
+                    unlock();
+                    start();
+                } else {
+                    userPaused = true;
+                    clearInterval(fade);
+                    music.pause();
+                }
+            });
+        }
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                hiddenWhilePlaying = !music.paused && !music.muted;
+                music.pause();
+            } else if (hiddenWhilePlaying && !userPaused) {
+                if (ctx && ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                play();
+            }
+        });
+
+        return { unlock: unlock, start: start };
+    })();
+
     // LP cover: the page stays locked until the record is opened (click/tap). Then the
     // sleeve slides off to the left and the record off to the right; the record comes back
     // tucked into the bottom right corner as the menu, and the cover collapses so the page
@@ -151,6 +312,8 @@
                 return;
             }
             opened = true;
+            // the tap that opens the record lets the browser play sound later
+            bgMusic.unlock();
             openBtn.setAttribute('aria-expanded', 'true');
             if (instant || reduceMotion) {
                 hero.classList.add('is-instant');
@@ -176,6 +339,9 @@
             setTimeout(function () {
                 dock();
                 setTimeout(unlock, 900);
+                // the song starts once the record is in the corner and the arm
+                // has landed on it (0.2s delay + 0.9s swing)
+                setTimeout(bgMusic.start, 1200);
             }, 1450);
         };
 
