@@ -2776,7 +2776,7 @@ button.btn-sand {
     padding: 0;
     border: 1px solid rgba(163, 149, 121, 0.7);
     border-radius: 50%;
-    background: rgba(245, 239, 227, 0.55); /* see-through cream: the label photo shows */
+    background: rgba(245, 239, 227, 0.7); /* see-through cream: the label photo shows */
     color: #5e533f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
     cursor: pointer;
@@ -2785,9 +2785,13 @@ button.btn-sand {
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.lp__vinyl.is-docked .lp__sound:hover {
-    background: rgba(245, 239, 227, 0.8);
-    transform: translate(-50%, -50%) scale(1.06);
+/* hover only on mouse devices: on phones a tap leaves :hover stuck, which
+   made the button solid */
+@media (hover: hover) {
+    .lp__vinyl.is-docked .lp__sound:hover {
+        background: rgba(245, 239, 227, 0.85);
+        transform: translate(-50%, -50%) scale(1.06);
+    }
 }
 
 .lp__sound .material-symbols-rounded {
