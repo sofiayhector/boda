@@ -183,6 +183,11 @@
             openRecord(false);
         });
 
+        // a tap anywhere on the first screen (not only on the record) opens it too
+        hero.addEventListener('click', function () {
+            openRecord(false);
+        });
+
         // menu links on the docked record scroll smoothly to their section
         lp.querySelectorAll('.lp__nav a[href^="#"]').forEach(function (link) {
             link.addEventListener('click', function (e) {

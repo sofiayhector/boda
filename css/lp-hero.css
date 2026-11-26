@@ -2748,3 +2748,9 @@ button.btn-sand {
         margin-top: 44px;
     }
 }
+
+/* the whole first screen opens the record (main.js), so it shows the hand
+   cursor until it is opened */
+.lp-hero:not(.is-open) {
+    cursor: pointer;
+}
