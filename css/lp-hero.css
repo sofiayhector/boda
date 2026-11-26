@@ -31,7 +31,7 @@ html.lp-locked body {
 /* shared LP variables live on the page, not the cover: when the record docks, main.js
    moves it out of the cover (see .lp__vinyl.is-docked), and it still needs them */
 .lp-page {
-    --lp-bg: #eee6d8; /* light beige, like invitation card stock */
+    --lp-bg: #f5f0e8; /* light beige, like invitation card stock */
     --lp-paper: #f3ebe8;
     --lp-kraft: #c3d9ea; /* torn strip and label half: soft sky blue */
     --lp-ink: #1f1c1a;
