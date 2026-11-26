@@ -2776,7 +2776,7 @@ button.btn-sand {
     padding: 0;
     border: 1px solid rgba(163, 149, 121, 0.7);
     border-radius: 50%;
-    background: #f5efe3;
+    background: rgba(245, 239, 227, 0.55); /* see-through cream: the label photo shows */
     color: #5e533f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
     cursor: pointer;
@@ -2786,7 +2786,7 @@ button.btn-sand {
 }
 
 .lp__vinyl.is-docked .lp__sound:hover {
-    background: #fff;
+    background: rgba(245, 239, 227, 0.8);
     transform: translate(-50%, -50%) scale(1.06);
 }
 
