@@ -1216,11 +1216,11 @@ a.lp__nav-item:focus-visible .lp__nav-label {
 /* "¡Nos casamos!" stays small so the names below it lead */
 #couple .heading h2 {
     margin-bottom: 22px;
-    font-size: 36px;
+    font-size: 44px;
 }
 
 /* #parents (below the photo): "Con la bendición de Dios y de nuestros padres:"
-   in the same script, size and color as "¡Nos casamos!" */
+   in the same script and color as "¡Nos casamos!" */
 #parents .heading {
     margin-bottom: 2em;
 }
@@ -1305,13 +1305,12 @@ a.lp__nav-item:focus-visible .lp__nav-label {
     /* room under the top-left flowers for the first section's title */
     #couple {
         padding-top: 118px;
-        padding-bottom: 36px;
     }
 
 
     #couple .heading h2 {
         margin-bottom: 28px;
-        font-size: 25px;
+        font-size: 31px;
         line-height: 1.2;
     }
 
@@ -1363,6 +1362,12 @@ a.lp__nav-item:focus-visible .lp__nav-label {
 
 #countdown .heading {
     margin-bottom: 3em;
+}
+
+/* "El gran día" the same size as the other section titles (Itinerario...):
+   the template made it smaller on phones */
+#countdown .heading h2 {
+    font-size: 50px;
 }
 
 #countdown .heading h2,
@@ -2299,8 +2304,7 @@ button.btn-sand {
     pointer-events: none;
 }
 
-/* Phones: 15px more room on both sides of each divider (below the section
-   above it, above the section it opens) */
+/* Phones: a wider divider line */
 @media (max-width: 575px) {
     #countdown,
     #hotels,
@@ -2308,15 +2312,6 @@ button.btn-sand {
     #gifts,
     #invitation {
         --div-w: 92%;
-        padding-top: calc(var(--section-pad) + 15px);
-    }
-
-    #parents,
-    #events,
-    #hotels,
-    #dresscode,
-    #gifts {
-        padding-bottom: calc(var(--section-pad) + 15px);
     }
 }
 
@@ -2352,10 +2347,10 @@ button.btn-sand {
 /* ------------------------------------------------------------------
  * Tighter spacing on index.html: the template's 7em (112px) section
  * padding and 4em heading gap left too much empty paper between blocks.
- * --section-pad is the space at the top and bottom of every section
- * (the photo band gets the same from its neighbors); id rules elsewhere
- * still win where a section needs more (the first section's room for the
- * corner flowers, the RSVP's room for the bottom flowers).
+ * --section-pad is the space at the top and bottom of every section, the
+ * same on both sides of each divider and next to the photo bands, so every
+ * gap between sections matches (the itinerary's). Only the top of the first
+ * section and the bottom of the last one differ.
  * ------------------------------------------------------------------ */
 .lp-page .page-card {
     --section-pad: 56px;
@@ -2368,7 +2363,6 @@ button.btn-sand {
 
 .lp-page #couple {
     padding-top: 56px;
-    padding-bottom: 40px; /* the invite line moved 16px lower; the photo stays put */
 }
 
 .lp-page .page-card .heading {
@@ -2377,7 +2371,7 @@ button.btn-sand {
 
 @media (max-width: 575px) {
     .lp-page .page-card {
-        --section-pad: 32px;
+        --section-pad: 47px;
     }
 
     .lp-page .page-card .heading {
@@ -2385,12 +2379,9 @@ button.btn-sand {
     }
 
     /* phones: "¡Nos casamos!" sits a little below halfway between the top of
-       the card and the names; the invite line sits 32px under the names with
-       about 44px of paper down to the photo (28px of padding plus the torn
-       edge's paper) */
+       the card and the names */
     .lp-page #couple {
         padding-top: 48px;
-        padding-bottom: 28px;
     }
 }
 
@@ -2398,28 +2389,8 @@ button.btn-sand {
     margin-bottom: 0;
 }
 
-/* the countdown ends right above the second photo band, and the itinerary
-   starts close below it */
 .lp-page #countdown .timer .timer-item > div {
     height: auto;
-}
-
-.lp-page #countdown {
-    padding-bottom: 36px;
-}
-
-.lp-page #events {
-    padding-top: 14px;
-}
-
-@media (max-width: 575px) {
-    .lp-page #countdown {
-        padding-bottom: 24px;
-    }
-
-    .lp-page #events {
-        padding-top: 10px;
-    }
 }
 
 /* the countdown's side phrases were removed, so the digits sit centered */
@@ -2776,6 +2747,9 @@ button.btn-sand {
     padding: 0;
     border: 1px solid rgba(163, 149, 121, 0.7);
     border-radius: 50%;
+    -webkit-appearance: none; /* no native iOS button look over the colour */
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
     background: rgba(245, 239, 227, 0.7); /* see-through cream: the label photo shows */
     color: #5e533f;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
