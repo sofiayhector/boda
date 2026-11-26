@@ -2354,15 +2354,17 @@ button.btn-sand {
  * ------------------------------------------------------------------ */
 .lp-page .page-card {
     --section-pad: 56px;
+    --title-lift: 14px; /* how much higher each section title sits */
 }
 
 .lp-page .page-card > .section {
-    padding-top: var(--section-pad);
+    /* the title sits a little higher than the gap below the section above */
+    padding-top: calc(var(--section-pad) - var(--title-lift));
     padding-bottom: var(--section-pad);
 }
 
 .lp-page #couple {
-    padding-top: 56px;
+    padding-top: calc(56px - var(--title-lift));
 }
 
 .lp-page .page-card .heading {
@@ -2381,7 +2383,7 @@ button.btn-sand {
     /* phones: "¡Nos casamos!" sits a little below halfway between the top of
        the card and the names */
     .lp-page #couple {
-        padding-top: 48px;
+        padding-top: calc(48px - var(--title-lift));
     }
 }
 
